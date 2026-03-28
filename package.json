@@ -1,0 +1,66 @@
+{
+  "name": "@ntkrnl64/fluentui-vue-components",
+  "description": "Complete Vue 3 port of @fluentui/react-components (Fluent UI v9). 200+ components, Griffel CSS-in-JS styling, design tokens, and a WinUI Gallery demo app.",
+  "version": "1.0.0",
+  "license": "GPL-3.0",
+  "type": "module",
+  "author": "ntkrnl64",
+  "homepage": "https://github.com/ntkrnl64/fluentui-vue-components",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ntkrnl64/fluentui-vue-components.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ntkrnl64/fluentui-vue-components/issues"
+  },
+  "keywords": [
+    "fluent-ui",
+    "vue",
+    "vue3",
+    "component-library",
+    "design-system",
+    "microsoft",
+    "fluent-design",
+    "griffel",
+    "css-in-js",
+    "ui-components"
+  ],
+  "main": "./dist/fluentui-vue-components.js",
+  "module": "./dist/fluentui-vue-components.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/fluentui-vue-components.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "LICENSE", "README.md", "THIRD_PARTY_LICENSES"],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:lib": "vite build --mode lib && vue-tsc --emitDeclarationOnly",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@floating-ui/vue": "^1.1.0",
+    "@fluentui/react-theme": "^9.2.1",
+    "@griffel/core": "^1.18.0",
+    "@ntkrnl64/griffel-vue": "^1.0.0",
+    "@ntkrnl64/fluentui-vue-icons": "^1.0.1",
+    "tabster": "^8.0.0",
+    "vue": "^3.5.30",
+    "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vue/tsconfig": "^0.9.0",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.1",
+    "vue-tsc": "^3.2.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

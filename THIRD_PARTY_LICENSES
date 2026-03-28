@@ -1,0 +1,89 @@
+THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+
+This project incorporates components from the projects listed below.
+
+================================================================================
+
+1. Fluent UI React v9 (https://github.com/microsoft/fluentui)
+   License: MIT
+   Copyright (c) Microsoft Corporation.
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+   This project is a Vue 3 port of the component library, design token system,
+   and styling patterns from @fluentui/react-components. Component APIs, styles,
+   and design tokens are derived from the Fluent UI React v9 source code.
+
+================================================================================
+
+2. @fluentui/react-theme (https://github.com/microsoft/fluentui)
+   License: MIT
+   Copyright (c) Microsoft Corporation.
+
+   Design tokens (colors, typography, spacing, borders, shadows) are consumed
+   directly from the @fluentui/react-theme npm package at runtime.
+
+================================================================================
+
+3. @griffel/core (https://github.com/microsoft/griffel)
+   License: MIT
+   Copyright (c) Microsoft Corporation.
+
+   CSS-in-JS engine used for atomic style generation via makeStyles/makeResetStyles.
+
+================================================================================
+
+4. Floating UI (https://github.com/floating-ui/floating-ui)
+   License: MIT
+   Copyright (c) 2021-present Floating UI contributors.
+
+   Used for popover, tooltip, menu, and combobox positioning via @floating-ui/vue.
+
+================================================================================
+
+5. Tabster (https://github.com/microsoft/tabster)
+   License: MIT
+   Copyright (c) Microsoft Corporation.
+
+   Used for keyboard navigation, focus management, and focus trapping.
+
+================================================================================
+
+6. Fluent UI System Icons (https://github.com/microsoft/fluentui-system-icons)
+   License: MIT
+   Copyright (c) 2020 Microsoft Corporation.
+
+   Icons used in components are from fluentui-vue-icons, which is generated
+   from the fluentui-system-icons SVG assets.
+
+================================================================================
+
+7. Vue.js (https://github.com/vuejs/core)
+   License: MIT
+   Copyright (c) 2018-present, Yuxi (Evan) You and Vue contributors.
+
+================================================================================
+
+8. Vue Router (https://github.com/vuejs/router)
+   License: MIT
+   Copyright (c) 2019-present Eduardo San Martin Morote.
+
+   Used in the gallery demo app for client-side routing.
+
+================================================================================
