@@ -2,70 +2,145 @@
 import { computed, useSlots } from "vue";
 import {
   useStyles,
-  useResetStyles,
   mergeClasses,
   makeStyles,
-  makeResetStyles,
+  shorthands,
 } from "@ntkrnl64/griffel-vue";
-import { tokens } from "@fluentui/react-theme";
 
 defineOptions({ inheritAttrs: false });
 
 const slots = useSlots();
 
-const useBaseClass = makeResetStyles({
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  gap: tokens.spacingHorizontalS,
-});
+/**
+ * CSS variable names used internally for uniform styling in CardHeader.
+ */
+const cardHeaderCSSVars = {
+  cardHeaderGapVar: "--fui-CardHeader--gap",
+};
 
-const useHeaderStyles = makeStyles({
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    flexGrow: 1,
-    overflow: "hidden",
+const useBaseStyles = makeStyles({
+  root: {
+    [cardHeaderCSSVars.cardHeaderGapVar]: "12px",
+    alignItems: "center",
+  },
+  image: {
+    display: "inline-flex",
+    marginRight: `var(${cardHeaderCSSVars.cardHeaderGapVar})`,
   },
   header: {
-    fontSize: tokens.fontSizeBase300,
-    fontWeight: tokens.fontWeightSemibold,
-    fontFamily: tokens.fontFamilyBase,
-    lineHeight: tokens.lineHeightBase300,
-    color: tokens.colorNeutralForeground1,
+    display: "flex",
   },
   description: {
-    fontSize: tokens.fontSizeBase200,
-    fontFamily: tokens.fontFamilyBase,
-    lineHeight: tokens.lineHeightBase200,
-    color: tokens.colorNeutralForeground3,
+    display: "flex",
   },
   action: {
-    marginLeft: "auto",
-    flexShrink: 0,
+    marginLeft: `var(${cardHeaderCSSVars.cardHeaderGapVar})`,
+
+    // when the card is selected or hovered, it has custom high contrast color and background styles
+    // setting this ensures action buttons adopt those colors and are still visible in forced-colors mode
+    "@media (forced-colors: active)": {
+      "& .fui-Button, & .fui-Link": {
+        ...shorthands.borderColor("currentColor"),
+        color: "currentColor",
+        outlineColor: "currentColor",
+      },
+    },
   },
 });
 
-const baseClassName = useResetStyles(useBaseClass);
-const styles = useStyles(useHeaderStyles);
+// Grid layout: used when description slot is present
+const useGridStyles = makeStyles({
+  root: {
+    display: "grid",
+    gridAutoColumns: "min-content 1fr min-content",
+  },
+  image: {
+    gridColumnStart: "1",
+    gridRowStart: "span 2",
+  },
+  header: {
+    gridColumnStart: "2",
+    gridRowStart: "1",
+  },
+  description: {
+    gridColumnStart: "2",
+    gridRowStart: "2",
+  },
+  action: {
+    gridColumnStart: "3",
+    gridRowStart: "span 2",
+  },
+});
+
+// Flex layout: used when no description slot
+const useFlexStyles = makeStyles({
+  root: {
+    display: "flex",
+  },
+  header: {
+    flexGrow: 1,
+  },
+});
+
+const baseStyles = useStyles(useBaseStyles);
+const gridStyles = useStyles(useGridStyles);
+const flexStyles = useStyles(useFlexStyles);
+
+const hasDescription = computed(() => !!slots.description);
 
 const rootClass = computed(() =>
-  mergeClasses("fui-CardHeader", baseClassName.value),
+  mergeClasses(
+    "fui-CardHeader",
+    baseStyles.value.root,
+    hasDescription.value ? gridStyles.value.root : flexStyles.value.root,
+  ),
+);
+
+const imageClass = computed(() =>
+  mergeClasses(
+    "fui-CardHeader__image",
+    baseStyles.value.image,
+    hasDescription.value ? gridStyles.value.image : undefined,
+  ),
+);
+
+const headerClass = computed(() =>
+  mergeClasses(
+    "fui-CardHeader__header",
+    baseStyles.value.header,
+    hasDescription.value ? gridStyles.value.header : flexStyles.value.header,
+  ),
+);
+
+const descriptionClass = computed(() =>
+  mergeClasses(
+    "fui-CardHeader__description",
+    baseStyles.value.description,
+    gridStyles.value.description,
+  ),
+);
+
+const actionClass = computed(() =>
+  mergeClasses(
+    "fui-CardHeader__action",
+    baseStyles.value.action,
+    hasDescription.value ? gridStyles.value.action : undefined,
+  ),
 );
 </script>
 
 <template>
   <div :class="rootClass" v-bind="$attrs">
-    <slot name="image" />
-    <div :class="styles.content">
-      <div :class="styles.header">
-        <slot name="header" />
-      </div>
-      <div v-if="slots.description" :class="styles.description">
-        <slot name="description" />
-      </div>
+    <div v-if="slots.image" :class="imageClass">
+      <slot name="image" />
     </div>
-    <div v-if="slots.action" :class="styles.action">
+    <div :class="headerClass">
+      <slot name="header" />
+    </div>
+    <div v-if="slots.description" :class="descriptionClass">
+      <slot name="description" />
+    </div>
+    <div v-if="slots.action" :class="actionClass">
       <slot name="action" />
     </div>
   </div>
