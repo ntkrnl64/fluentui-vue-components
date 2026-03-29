@@ -28,7 +28,6 @@ defineOptions({ inheritAttrs: false });
 const useBaseClass = makeResetStyles({
   fontFamily: tokens.fontFamilyBase,
   color: tokens.colorNeutralForeground1,
-  cursor: "default",
 });
 
 const useLabelStyles = makeStyles({
@@ -46,7 +45,13 @@ const useLabelStyles = makeStyles({
     fontWeight: tokens.fontWeightSemibold,
   },
   semibold: { fontWeight: tokens.fontWeightSemibold },
-  disabled: { color: tokens.colorNeutralForegroundDisabled, cursor: "default" },
+  disabled: {
+    color: tokens.colorNeutralForegroundDisabled,
+    cursor: "default",
+    "@media (forced-colors: active)": {
+      color: "GrayText",
+    },
+  },
   required: {
     color: tokens.colorPaletteRedForeground3,
     paddingLeft: tokens.spacingHorizontalXS,
