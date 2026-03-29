@@ -15,6 +15,8 @@ export interface PopoverContext {
   trapFocus: boolean;
   withArrow: boolean;
   inline: boolean;
+  openOnContext: boolean;
+  contextMousePosition?: Ref<{ x: number; y: number } | null>;
 }
 
 export const PopoverContextKey: InjectionKey<PopoverContext> =

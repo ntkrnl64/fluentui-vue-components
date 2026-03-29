@@ -12,12 +12,33 @@ function syncTriggerRef() {
   }
 }
 
+function handleClick() {
+  if (!ctx.openOnContext) {
+    ctx.toggleOpen();
+  }
+}
+
+function handleContextMenu(event: MouseEvent) {
+  if (ctx.openOnContext) {
+    event.preventDefault();
+    if (ctx.contextMousePosition) {
+      ctx.contextMousePosition.value = { x: event.clientX, y: event.clientY };
+    }
+    ctx.setOpen(true);
+  }
+}
+
 onMounted(syncTriggerRef);
 onUpdated(syncTriggerRef);
 </script>
 
 <template>
-  <span ref="wrapperRef" style="display: contents" @click="ctx.toggleOpen">
+  <span
+    ref="wrapperRef"
+    style="display: contents"
+    @click="handleClick"
+    @contextmenu="handleContextMenu"
+  >
     <slot />
   </span>
 </template>

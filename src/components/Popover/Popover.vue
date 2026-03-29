@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, ref, computed, watch } from "vue";
+import { provide, ref, computed, watch, type Ref } from "vue";
 import { useOnClickOutside } from "../../composables/useOnClickOutside";
 import type { PositioningShorthand } from "../../composables/usePositioning";
 import { PopoverContextKey } from "./context";
@@ -14,6 +14,7 @@ export interface PopoverProps {
   inline?: boolean;
   closeOnScroll?: boolean;
   openOnHover?: boolean;
+  openOnContext?: boolean;
   mouseLeaveDelay?: number;
   /** Use null default to distinguish "not passed" from "false" (Vue coerces boolean props to false) */
   open?: boolean | null;
@@ -26,6 +27,7 @@ const props = withDefaults(defineProps<PopoverProps>(), {
   inline: false,
   closeOnScroll: false,
   openOnHover: false,
+  openOnContext: false,
   mouseLeaveDelay: 500,
   open: null,
 });
@@ -64,6 +66,7 @@ function setOpen(value: boolean) {
 const triggerRef = ref<HTMLElement | null>(null);
 const contentRef = ref<HTMLElement | null>(null);
 const arrowRef = ref<HTMLElement | null>(null);
+const contextMousePosition: Ref<{ x: number; y: number } | null> = ref(null);
 
 useOnClickOutside(
   contentRef,
@@ -88,6 +91,8 @@ provide(PopoverContextKey, {
   trapFocus: props.trapFocus,
   withArrow: props.withArrow,
   inline: props.inline,
+  openOnContext: props.openOnContext,
+  contextMousePosition,
 });
 </script>
 
