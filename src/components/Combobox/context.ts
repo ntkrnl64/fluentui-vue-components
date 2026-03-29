@@ -15,6 +15,10 @@ export interface ComboboxContext {
   activeDescendant: Ref<string>;
   setActiveDescendant: (id: string) => void;
   listboxId: string;
+  /** Register an option's value->text mapping */
+  registerOption: (value: string, text: string) => void;
+  /** Get display text for a value */
+  getOptionText: (value: string) => string;
 }
 
 export const ComboboxContextKey: InjectionKey<ComboboxContext> =

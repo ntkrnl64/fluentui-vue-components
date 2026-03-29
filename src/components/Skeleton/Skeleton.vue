@@ -1,44 +1,31 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import {
-  useStyles,
-  useResetStyles,
-  mergeClasses,
-  makeStyles,
-  makeResetStyles,
-  shorthands,
-} from "@ntkrnl64/griffel-vue";
-import { tokens } from "@fluentui/react-theme";
-
-export type SkeletonAppearance = "opaque" | "translucent";
+import { computed, provide } from "vue";
+import { mergeClasses } from "@ntkrnl64/griffel-vue";
+import { SkeletonContextKey } from "./context";
+import type { SkeletonAnimation, SkeletonAppearance } from "./context";
 
 export interface SkeletonProps {
+  animation?: SkeletonAnimation;
   appearance?: SkeletonAppearance;
 }
 
 const props = withDefaults(defineProps<SkeletonProps>(), {
+  animation: "wave",
   appearance: "opaque",
 });
 
 defineOptions({ inheritAttrs: false });
 
-const useBaseClass = makeResetStyles({
-  position: "relative",
-  overflow: "hidden",
-  display: "flex",
-  flexDirection: "column",
-  gap: tokens.spacingVerticalS,
+const rootClass = computed(() => mergeClasses("fui-Skeleton"));
+
+provide(SkeletonContextKey, {
+  animation: props.animation,
+  appearance: props.appearance,
 });
-
-const baseClassName = useResetStyles(useBaseClass);
-
-const rootClass = computed(() =>
-  mergeClasses("fui-Skeleton", baseClassName.value),
-);
 </script>
 
 <template>
-  <div :class="rootClass" v-bind="$attrs">
+  <div :class="rootClass" role="progressbar" aria-busy="true" v-bind="$attrs">
     <slot />
   </div>
 </template>
