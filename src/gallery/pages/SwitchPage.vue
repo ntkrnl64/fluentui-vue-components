@@ -28,6 +28,11 @@ const switch2 = ref(true);
       <Switch labelPosition="above" :checked="true">Label above</Switch>
     </ControlExample>
 
+    <ControlExample headerText="Size">
+      <Switch size="small">Small</Switch>
+      <Switch size="medium">Medium (default)</Switch>
+    </ControlExample>
+
     <ControlExample headerText="Disabled Switch">
       <Switch disabled>Disabled off</Switch>
       <Switch disabled :checked="true">Disabled on</Switch>

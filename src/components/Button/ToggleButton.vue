@@ -228,9 +228,7 @@ const primaryHighContrastStyles = useStyles(usePrimaryHighContrastStyles);
 
 const hasIcon = computed(() => !!slots.icon);
 const iconOnly = computed(() => hasIcon.value && !slots.default);
-const isDisabled = computed(
-  () => props.disabled || props.disabledFocusable,
-);
+const isDisabled = computed(() => props.disabled || props.disabledFocusable);
 
 const rootClass = computed(() =>
   mergeClasses(
