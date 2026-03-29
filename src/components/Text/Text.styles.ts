@@ -83,8 +83,7 @@ export const useTextStyles = makeStyles({
   truncate: {
     overflow: "hidden",
     textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
   block: { display: "block" },
-  nowrap: { whiteSpace: "nowrap" },
+  nowrap: { whiteSpace: "nowrap", overflow: "hidden" },
 });
