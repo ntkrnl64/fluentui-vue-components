@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, useSlots, onMounted, watch } from "vue";
 import {
   useStyles,
   useResetStyles,
   mergeClasses,
   makeStyles,
   makeResetStyles,
-  shorthands,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
+import {
+  Checkmark12Filled,
+  Checkmark16Filled,
+  Square12Filled,
+  Square16Filled,
+  Circle12Filled,
+  Circle16Filled,
+} from "@ntkrnl64/fluentui-vue-icons";
 
 export type CheckboxShape = "square" | "circular";
 export type CheckboxSize = "medium" | "large";
@@ -29,149 +36,261 @@ const props = withDefaults(defineProps<CheckboxProps>(), {
 
 defineOptions({ inheritAttrs: false });
 const checked = defineModel<boolean | "mixed">("checked", { default: false });
+const vueSlots = useSlots();
+const hasLabel = computed(() => !!vueSlots.default);
+const inputRef = ref<HTMLInputElement | null>(null);
 
-const useBaseClass = makeResetStyles({
-  display: "inline-flex",
-  alignItems: "center",
-  cursor: "pointer",
+// Set indeterminate via JS (can't be set via HTML attribute)
+function syncIndeterminate() {
+  if (inputRef.value) {
+    inputRef.value.indeterminate = checked.value === "mixed";
+  }
+}
+onMounted(syncIndeterminate);
+watch(checked, syncIndeterminate);
+
+// CSS variables used internally for indicator styling
+const vars = {
+  indicatorColor: "--fui-Checkbox__indicator--color",
+  indicatorBorderColor: "--fui-Checkbox__indicator--borderColor",
+  indicatorBackgroundColor: "--fui-Checkbox__indicator--backgroundColor",
+} as const;
+
+const indicatorSizeMedium = "16px";
+const indicatorSizeLarge = "20px";
+
+// --- Styles (matching React's useCheckboxStyles.styles.ts exactly) ---
+
+const useRootBaseClass = makeResetStyles({
   position: "relative",
-  columnGap: tokens.spacingHorizontalS,
-  fontFamily: tokens.fontFamilyBase,
-  fontSize: tokens.fontSizeBase300,
-  lineHeight: tokens.lineHeightBase300,
-  color: tokens.colorNeutralForeground1,
+  display: "inline-flex",
+  cursor: "pointer",
+  maxWidth: "fit-content",
+  verticalAlign: "middle",
+  color: tokens.colorNeutralForeground3,
 });
 
-const useCheckboxStyles = makeStyles({
-  indicator: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxSizing: "border-box",
-    flexShrink: 0,
-    width: "16px",
-    height: "16px",
-    ...shorthands.borderRadius(tokens.borderRadiusSmall),
-    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStrokeAccessible}`,
-    fill: "currentColor",
-    color: tokens.colorNeutralForegroundInverted,
-    backgroundColor: tokens.colorNeutralBackground1,
-    transitionProperty: "background-color, border-color",
-    transitionDuration: tokens.durationFaster,
-    transitionTimingFunction: tokens.curveEasyEase,
+const useRootStyles = makeStyles({
+  unchecked: {
     ":hover": {
-      ...shorthands.borderColor(tokens.colorNeutralStrokeAccessibleHover),
+      color: tokens.colorNeutralForeground2,
+      [vars.indicatorBorderColor]: tokens.colorNeutralStrokeAccessibleHover,
+    },
+    ":active": {
+      color: tokens.colorNeutralForeground1,
+      [vars.indicatorBorderColor]: tokens.colorNeutralStrokeAccessiblePressed,
     },
   },
-  indicatorChecked: {
-    backgroundColor: tokens.colorCompoundBrandBackground,
-    ...shorthands.borderColor(tokens.colorCompoundBrandBackground),
+  checked: {
+    color: tokens.colorNeutralForeground1,
+    [vars.indicatorBackgroundColor]: tokens.colorCompoundBrandBackground,
+    [vars.indicatorColor]: tokens.colorNeutralForegroundInverted,
+    [vars.indicatorBorderColor]: tokens.colorCompoundBrandBackground,
+
     ":hover": {
-      backgroundColor: tokens.colorCompoundBrandBackgroundHover,
-      ...shorthands.borderColor(tokens.colorCompoundBrandBackgroundHover),
+      [vars.indicatorBackgroundColor]: tokens.colorCompoundBrandBackgroundHover,
+      [vars.indicatorBorderColor]: tokens.colorCompoundBrandBackgroundHover,
+    },
+    ":active": {
+      [vars.indicatorBackgroundColor]:
+        tokens.colorCompoundBrandBackgroundPressed,
+      [vars.indicatorBorderColor]: tokens.colorCompoundBrandBackgroundPressed,
     },
   },
-  indicatorMixed: {
-    backgroundColor: tokens.colorCompoundBrandBackground,
-    ...shorthands.borderColor(tokens.colorCompoundBrandBackground),
-  },
-  circular: { ...shorthands.borderRadius(tokens.borderRadiusCircular) },
-  large: { width: "20px", height: "20px" },
-  largeLabel: {
-    fontSize: tokens.fontSizeBase400,
-    lineHeight: tokens.lineHeightBase400,
+  mixed: {
+    color: tokens.colorNeutralForeground1,
+    [vars.indicatorBorderColor]: tokens.colorCompoundBrandStroke,
+    [vars.indicatorColor]: tokens.colorCompoundBrandForeground1,
+
+    ":hover": {
+      [vars.indicatorBorderColor]: tokens.colorCompoundBrandStrokeHover,
+      [vars.indicatorColor]: tokens.colorCompoundBrandForeground1Hover,
+    },
+    ":active": {
+      [vars.indicatorBorderColor]: tokens.colorCompoundBrandStrokePressed,
+      [vars.indicatorColor]: tokens.colorCompoundBrandForeground1Pressed,
+    },
   },
   disabled: {
-    cursor: "not-allowed",
+    cursor: "default",
     color: tokens.colorNeutralForegroundDisabled,
-  },
-  disabledIndicator: {
-    ...shorthands.borderColor(tokens.colorNeutralStrokeDisabled),
-    backgroundColor: tokens.colorNeutralBackgroundDisabled,
-    color: tokens.colorNeutralForegroundDisabled,
-  },
-  before: { flexDirection: "row-reverse" },
-  hidden: {
-    position: "absolute",
-    opacity: 0,
-    width: 0,
-    height: 0,
-    margin: 0,
-    padding: 0,
-    overflow: "hidden",
+    [vars.indicatorBorderColor]: tokens.colorNeutralStrokeDisabled,
+    [vars.indicatorColor]: tokens.colorNeutralForegroundDisabled,
+
+    "@media (forced-colors: active)": {
+      color: "GrayText",
+      [vars.indicatorColor]: "GrayText",
+    },
   },
 });
 
-const baseClassName = useResetStyles(useBaseClass);
-const styles = useStyles(useCheckboxStyles);
+const useInputBaseClass = makeResetStyles({
+  boxSizing: "border-box",
+  cursor: "inherit",
+  height: "100%",
+  margin: 0,
+  opacity: 0,
+  position: "absolute",
+  top: 0,
+  width: `calc(${indicatorSizeMedium} + 2 * ${tokens.spacingHorizontalS})`,
+});
+
+const useInputStyles = makeStyles({
+  before: {
+    right: 0,
+  },
+  after: {
+    left: 0,
+  },
+  large: {
+    width: `calc(${indicatorSizeLarge} + 2 * ${tokens.spacingHorizontalS})`,
+  },
+});
+
+const useIndicatorBaseClass = makeResetStyles({
+  alignSelf: "flex-start",
+  boxSizing: "border-box",
+  flexShrink: 0,
+
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden",
+
+  color: `var(${vars.indicatorColor})`,
+  backgroundColor: `var(${vars.indicatorBackgroundColor})`,
+  borderColor: `var(${vars.indicatorBorderColor}, ${tokens.colorNeutralStrokeAccessible})`,
+  borderStyle: "solid",
+  borderWidth: tokens.strokeWidthThin,
+  borderRadius: tokens.borderRadiusSmall,
+  margin: tokens.spacingVerticalS + " " + tokens.spacingHorizontalS,
+  fill: "currentColor",
+  pointerEvents: "none",
+
+  fontSize: "12px",
+  height: indicatorSizeMedium,
+  width: indicatorSizeMedium,
+});
+
+const useIndicatorStyles = makeStyles({
+  large: {
+    fontSize: "16px",
+    height: indicatorSizeLarge,
+    width: indicatorSizeLarge,
+  },
+  circular: { borderRadius: tokens.borderRadiusCircular },
+});
+
+const useLabelStyles = makeStyles({
+  base: {
+    alignSelf: "center",
+    color: "inherit",
+    cursor: "inherit",
+    padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalS}`,
+    fontFamily: tokens.fontFamilyBase,
+    fontSize: tokens.fontSizeBase300,
+    lineHeight: tokens.lineHeightBase300,
+    fontWeight: tokens.fontWeightRegular as unknown as string,
+  },
+  before: {
+    paddingRight: tokens.spacingHorizontalXS,
+  },
+  after: {
+    paddingLeft: tokens.spacingHorizontalXS,
+  },
+  medium: {
+    marginTop: `calc((${indicatorSizeMedium} - ${tokens.lineHeightBase300}) / 2)`,
+    marginBottom: `calc((${indicatorSizeMedium} - ${tokens.lineHeightBase300}) / 2)`,
+  },
+  large: {
+    marginTop: `calc((${indicatorSizeLarge} - ${tokens.lineHeightBase300}) / 2)`,
+    marginBottom: `calc((${indicatorSizeLarge} - ${tokens.lineHeightBase300}) / 2)`,
+  },
+});
+
+const rootBaseClassName = useResetStyles(useRootBaseClass);
+const rootStyles = useStyles(useRootStyles);
+const inputBaseClassName = useResetStyles(useInputBaseClass);
+const inputStyles = useStyles(useInputStyles);
+const indicatorBaseClassName = useResetStyles(useIndicatorBaseClass);
+const indicatorStyles = useStyles(useIndicatorStyles);
+const labelStyles = useStyles(useLabelStyles);
 
 const rootClass = computed(() =>
   mergeClasses(
     "fui-Checkbox",
-    baseClassName.value,
-    props.labelPosition === "before" && styles.value.before,
-    props.size === "large" && styles.value.largeLabel,
-    props.disabled && styles.value.disabled,
+    rootBaseClassName.value,
+    props.disabled
+      ? rootStyles.value.disabled
+      : checked.value === "mixed"
+        ? rootStyles.value.mixed
+        : checked.value
+          ? rootStyles.value.checked
+          : rootStyles.value.unchecked,
+  ),
+);
+
+const inputClass = computed(() =>
+  mergeClasses(
+    "fui-Checkbox__input",
+    inputBaseClassName.value,
+    props.size === "large" && inputStyles.value.large,
+    inputStyles.value[props.labelPosition],
   ),
 );
 
 const indicatorClass = computed(() =>
   mergeClasses(
-    styles.value.indicator,
-    props.shape === "circular" && styles.value.circular,
-    props.size === "large" && styles.value.large,
-    checked.value === true && styles.value.indicatorChecked,
-    checked.value === "mixed" && styles.value.indicatorMixed,
-    props.disabled && styles.value.disabledIndicator,
+    "fui-Checkbox__indicator",
+    indicatorBaseClassName.value,
+    props.size === "large" && indicatorStyles.value.large,
+    props.shape === "circular" && indicatorStyles.value.circular,
   ),
 );
 
-function toggle() {
+const labelClass = computed(() =>
+  mergeClasses(
+    "fui-Checkbox__label",
+    labelStyles.value.base,
+    labelStyles.value[props.size],
+    labelStyles.value[props.labelPosition],
+  ),
+);
+
+function handleChange(event: Event) {
   if (props.disabled) return;
-  checked.value = checked.value === true ? false : true;
+  const input = event.target as HTMLInputElement;
+  checked.value = input.indeterminate ? "mixed" : input.checked;
 }
 </script>
 
 <template>
-  <label :class="rootClass" v-bind="$attrs" @click.prevent="toggle">
+  <span :class="rootClass" v-bind="$attrs">
     <input
-      :class="styles.hidden"
+      ref="inputRef"
+      :class="inputClass"
       type="checkbox"
       :checked="checked === true"
-      :indeterminate="checked === 'mixed'"
       :disabled="disabled"
-      @change="toggle"
+      @change="handleChange"
     />
-    <div :class="indicatorClass">
-      <svg
-        v-if="checked === true"
-        width="12"
-        height="12"
-        viewBox="0 0 12 12"
-        fill="none"
-      >
-        <path
-          d="M9.76 3.2a.75.75 0 0 1 .04 1.06l-4.25 4.5a.75.75 0 0 1-1.08.02L2.22 6.53a.75.75 0 0 1 1.06-1.06l1.7 1.7 3.72-3.93a.75.75 0 0 1 1.06-.04Z"
-          fill="currentColor"
-        />
-      </svg>
-      <svg
-        v-else-if="checked === 'mixed'"
-        width="12"
-        height="12"
-        viewBox="0 0 12 12"
-        fill="none"
-      >
-        <rect
-          x="2"
-          y="5.25"
-          width="8"
-          height="1.5"
-          rx="0.75"
-          fill="currentColor"
-        />
-      </svg>
+    <span v-if="labelPosition === 'before' && hasLabel" :class="labelClass">
+      <slot />
+    </span>
+    <div :class="indicatorClass" aria-hidden="true">
+      <template v-if="checked === 'mixed'">
+        <Circle16Filled v-if="shape === 'circular' && size === 'large'" />
+        <Circle12Filled v-else-if="shape === 'circular'" />
+        <Square16Filled v-else-if="size === 'large'" />
+        <Square12Filled v-else />
+      </template>
+      <template v-else-if="checked === true">
+        <Checkmark16Filled v-if="size === 'large'" />
+        <Checkmark12Filled v-else />
+      </template>
     </div>
-    <slot />
-  </label>
+    <span v-if="labelPosition === 'after' && hasLabel" :class="labelClass">
+      <slot />
+    </span>
+  </span>
 </template>
