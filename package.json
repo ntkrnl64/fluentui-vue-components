@@ -1,7 +1,7 @@
 {
   "name": "@ntkrnl64/fluentui-vue-components",
   "description": "Complete Vue 3 port of @fluentui/react-components (Fluent UI v9). 200+ components, Griffel CSS-in-JS styling, design tokens, and a WinUI Gallery demo app.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "GPL-3.0",
   "type": "module",
   "author": "ntkrnl64",
