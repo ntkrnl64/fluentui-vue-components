@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed } from "vue";
+import { inject, computed, watch, nextTick } from "vue";
 import {
   useResetStyles,
   mergeClasses,
@@ -75,6 +75,74 @@ const useBaseClass = makeResetStyles({
 });
 
 const baseClassName = useResetStyles(useBaseClass);
+
+const menuItemSelector =
+  '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
+
+function getMenuItems(): HTMLElement[] {
+  if (!ctx.contentRef.value) return [];
+  return Array.from(ctx.contentRef.value.querySelectorAll(menuItemSelector));
+}
+
+function focusItemByIndex(items: HTMLElement[], index: number) {
+  if (items.length === 0) return;
+  const clamped = Math.max(0, Math.min(index, items.length - 1));
+  items[clamped]?.focus();
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  const items = getMenuItems();
+  if (items.length === 0) return;
+
+  const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+
+  switch (event.key) {
+    case "ArrowDown":
+      event.preventDefault();
+      focusItemByIndex(items, currentIndex < 0 ? 0 : currentIndex + 1);
+      break;
+    case "ArrowUp":
+      event.preventDefault();
+      focusItemByIndex(
+        items,
+        currentIndex < 0 ? items.length - 1 : currentIndex - 1,
+      );
+      break;
+    case "Home":
+      event.preventDefault();
+      focusItemByIndex(items, 0);
+      break;
+    case "End":
+      event.preventDefault();
+      focusItemByIndex(items, items.length - 1);
+      break;
+    case "Enter":
+    case " ":
+      if (
+        document.activeElement &&
+        items.includes(document.activeElement as HTMLElement)
+      ) {
+        event.preventDefault();
+        (document.activeElement as HTMLElement).click();
+      }
+      break;
+  }
+}
+
+// Auto-focus the first menu item when the menu opens
+watch(
+  () => ctx.open.value,
+  (isOpen) => {
+    if (isOpen) {
+      nextTick(() => {
+        const items = getMenuItems();
+        if (items.length > 0) {
+          items[0].focus();
+        }
+      });
+    }
+  },
+);
 </script>
 
 <template>
@@ -90,6 +158,7 @@ const baseClassName = useResetStyles(useBaseClass);
       :style="floatingStyles"
       role="menu"
       v-bind="$attrs"
+      @keydown="handleKeydown"
     >
       <slot />
     </div>
