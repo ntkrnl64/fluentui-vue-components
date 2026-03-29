@@ -40,6 +40,8 @@ const useBaseClass = makeResetStyles({
   justifyContent: "center",
   boxSizing: "border-box",
   cursor: "pointer",
+  overflow: "hidden",
+  textTransform: "none",
   backgroundColor: "transparent",
   border: "none",
   fontFamily: tokens.fontFamilyBase,
