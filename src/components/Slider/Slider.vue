@@ -96,7 +96,7 @@ const useSliderStyles = makeStyles({
       "--fui-Slider__progress--color":
         tokens.colorCompoundBrandBackgroundPressed,
     },
-  } as Record<string, string>,
+  } as any,
   disabled: {
     "--fui-Slider__thumb--color": tokens.colorNeutralForegroundDisabled,
     "--fui-Slider__rail--color": tokens.colorNeutralBackgroundDisabled,
@@ -159,7 +159,7 @@ const useSliderStyles = makeStyles({
       content: "''",
       border: `calc(var(--fui-Slider__thumb--size) * .05) solid ${tokens.colorNeutralStroke1}`,
     },
-  } as Record<string, string>,
+  } as any,
   thumbHorizontal: {
     transform: "translateX(-50%)",
     left: "var(--fui-Slider__thumb--position)",
@@ -191,7 +191,7 @@ const useSliderStyles = makeStyles({
 
   // Focus indicator
   focusVisible: {
-    ":focus-within": {
+    ":focus-within:has(:focus-visible)": {
       outlineColor: tokens.colorStrokeFocus2,
       outlineWidth: tokens.strokeWidthThick,
       outlineStyle: "solid",
