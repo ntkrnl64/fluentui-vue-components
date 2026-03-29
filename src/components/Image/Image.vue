@@ -29,11 +29,10 @@ const props = withDefaults(defineProps<ImageProps>(), {
 defineOptions({ inheritAttrs: false });
 
 const useBaseClass = makeResetStyles({
-  ...shorthands.borderColor(tokens.colorNeutralStroke2),
-  ...shorthands.borderRadius(tokens.borderRadiusNone),
-  boxSizing: "content-box",
+  ...shorthands.borderColor(tokens.colorNeutralStroke1),
+  borderRadius: tokens.borderRadiusNone,
+  boxSizing: "border-box",
   display: "inline-block",
-  verticalAlign: "middle",
 });
 
 const useImageStyles = makeStyles({
@@ -54,8 +53,9 @@ const useImageStyles = makeStyles({
     height: "100%",
     width: "100%",
   },
-  none: { objectFit: "none" },
-  block: { display: "block", width: "100%" },
+  none: { objectFit: "none", objectPosition: "left top" },
+  fitFill: { height: "100%", width: "100%" },
+  block: { width: "100%" },
   circular: { ...shorthands.borderRadius(tokens.borderRadiusCircular) },
   rounded: { ...shorthands.borderRadius(tokens.borderRadiusMedium) },
   shadow: { boxShadow: tokens.shadow4 },
@@ -68,12 +68,13 @@ const rootClass = computed(() =>
   mergeClasses(
     "fui-Image",
     baseClassName.value,
-    props.bordered && styles.value.bordered,
-    props.fit !== "default" && styles.value[props.fit],
     props.block && styles.value.block,
+    props.bordered && styles.value.bordered,
+    props.shadow && styles.value.shadow,
+    props.fit !== "default" && styles.value[props.fit],
+    props.fit !== "default" && styles.value.fitFill,
     props.shape === "circular" && styles.value.circular,
     props.shape === "rounded" && styles.value.rounded,
-    props.shadow && styles.value.shadow,
   ),
 );
 </script>
