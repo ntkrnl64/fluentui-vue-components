@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, useSlots } from "vue";
 import {
   useStyles,
   useResetStyles,
@@ -7,7 +7,13 @@ import {
   makeStyles,
   makeResetStyles,
 } from "@ntkrnl64/griffel-vue";
-import { tokens } from "@fluentui/react-theme";
+import { tokens, typographyStyles } from "@fluentui/react-theme";
+import {
+  CheckmarkCircle12Filled,
+  Dismiss12Filled,
+  Warning12Filled,
+} from "@ntkrnl64/fluentui-vue-icons";
+import { useId } from "../../composables/useId";
 
 export interface FieldProps {
   label?: string;
@@ -28,154 +34,210 @@ const props = withDefaults(defineProps<FieldProps>(), {
 
 defineOptions({ inheritAttrs: false });
 
-let fieldCounter = 0;
-const fieldId = `fui-field-${++fieldCounter}`;
-const labelId = `${fieldId}-label`;
-const validationId = `${fieldId}-validation`;
-const hintId = `${fieldId}-hint`;
+const vueSlots = useSlots();
 
-const useBaseClass = makeResetStyles({
-  display: "flex",
-  fontFamily: tokens.fontFamilyBase,
+const baseId = useId("field-");
+const controlId = `${baseId}__control`;
+const labelId = `${baseId}__label`;
+const validationMessageId = `${baseId}__validationMessage`;
+const hintId = `${baseId}__hint`;
+
+// Size of the icon in the validation message
+const iconSize = "12px";
+
+const effectiveValidationState = computed(() => {
+  if (props.validationState !== "none") return props.validationState;
+  if (props.validationMessage) return "error";
+  return "none";
 });
 
-const useFieldStyles = makeStyles({
-  vertical: {
-    flexDirection: "column",
-    gap: tokens.spacingVerticalXXS,
+const showValidationIcon = computed(
+  () => effectiveValidationState.value !== "none",
+);
+
+const validationRole = computed(() => {
+  const state = effectiveValidationState.value;
+  return state === "error" || state === "warning" ? "alert" : undefined;
+});
+
+// --- Styles (matching React's useFieldStyles.styles.ts exactly) ---
+
+const useRootStyles = makeStyles({
+  base: {
+    display: "grid",
   },
   horizontal: {
-    flexDirection: "row",
-    alignItems: "start",
-    gap: tokens.spacingHorizontalM,
+    gridTemplateColumns: "33% 1fr",
+    gridTemplateRows: "auto auto auto 1fr",
   },
-  horizontalLabel: {
-    width: "33%",
+  horizontalNoLabel: {
+    paddingLeft: "33%",
+    gridTemplateColumns: "1fr",
+  },
+});
+
+const useLabelStyles = makeStyles({
+  base: {
+    maxWidth: "max-content",
+    maxHeight: "max-content",
+  },
+  vertical: {
+    paddingTop: tokens.spacingVerticalXXS,
+    paddingBottom: tokens.spacingVerticalXXS,
+    marginBottom: tokens.spacingVerticalXXS,
+  },
+  verticalLarge: {
+    paddingTop: "1px",
+    paddingBottom: "1px",
+    marginBottom: tokens.spacingVerticalXS,
+  },
+  horizontal: {
     paddingTop: tokens.spacingVerticalSNudge,
+    paddingBottom: tokens.spacingVerticalSNudge,
+    marginRight: tokens.spacingHorizontalM,
+    gridRowStart: "1",
+    gridRowEnd: "-1",
   },
-  horizontalContent: {
-    flexGrow: 1,
-    display: "flex",
-    flexDirection: "column",
-    gap: tokens.spacingVerticalXXS,
+  horizontalSmall: {
+    paddingTop: tokens.spacingVerticalXS,
+    paddingBottom: tokens.spacingVerticalXS,
   },
-  label: {
-    cursor: "default",
-    color: tokens.colorNeutralForeground1,
-    display: "block",
+  horizontalLarge: {
+    paddingTop: "9px",
+    paddingBottom: "9px",
   },
-  labelSmall: {
-    fontSize: tokens.fontSizeBase200,
-    lineHeight: tokens.lineHeightBase200,
+});
+
+const useSecondaryTextBaseClass = makeResetStyles({
+  marginTop: tokens.spacingVerticalXXS,
+  color: tokens.colorNeutralForeground3,
+  ...typographyStyles.caption1,
+});
+
+const useSecondaryTextStyles = makeStyles({
+  error: {
+    color: tokens.colorPaletteRedForeground1,
   },
-  labelMedium: {
-    fontSize: tokens.fontSizeBase300,
-    lineHeight: tokens.lineHeightBase300,
+  withIcon: {
+    paddingLeft: `calc(${iconSize} + ${tokens.spacingHorizontalXS})`,
   },
-  labelLarge: {
-    fontSize: tokens.fontSizeBase400,
-    lineHeight: tokens.lineHeightBase400,
-    fontWeight: tokens.fontWeightSemibold,
-  },
-  required: {
-    color: tokens.colorPaletteRedForeground3,
-    paddingLeft: tokens.spacingHorizontalXS,
-  },
-  validationMessage: {
-    fontSize: tokens.fontSizeBase200,
-    lineHeight: tokens.lineHeightBase200,
-    display: "flex",
-    alignItems: "center",
-    gap: tokens.spacingHorizontalXS,
-  },
-  success: {
-    color: tokens.colorPaletteGreenForeground1,
+});
+
+const useValidationMessageIconBaseClass = makeResetStyles({
+  display: "inline-block",
+  fontSize: iconSize,
+  marginLeft: `calc(-${iconSize} - ${tokens.spacingHorizontalXS})`,
+  marginRight: tokens.spacingHorizontalXS,
+  lineHeight: "0",
+  verticalAlign: "-1px",
+});
+
+const useValidationMessageIconStyles = makeStyles({
+  error: {
+    color: tokens.colorPaletteRedForeground1,
   },
   warning: {
     color: tokens.colorPaletteDarkOrangeForeground1,
   },
-  error: {
-    color: tokens.colorPaletteRedForeground1,
-  },
-  hint: {
-    fontSize: tokens.fontSizeBase200,
-    lineHeight: tokens.lineHeightBase200,
-    color: tokens.colorNeutralForeground3,
+  success: {
+    color: tokens.colorPaletteGreenForeground1,
   },
 });
 
-const baseClassName = useResetStyles(useBaseClass);
-const styles = useStyles(useFieldStyles);
+const useRequiredStyles = makeStyles({
+  asterisk: {
+    color: tokens.colorPaletteRedForeground3,
+    paddingLeft: tokens.spacingHorizontalXS,
+  },
+});
+
+const rootStyles = useStyles(useRootStyles);
+const labelStyles = useStyles(useLabelStyles);
+const secondaryTextBaseClassName = useResetStyles(useSecondaryTextBaseClass);
+const secondaryTextStyles = useStyles(useSecondaryTextStyles);
+const validationMessageIconBaseClassName = useResetStyles(
+  useValidationMessageIconBaseClass,
+);
+const validationMessageIconStyles = useStyles(useValidationMessageIconStyles);
+const requiredStyles = useStyles(useRequiredStyles);
+
+const isHorizontal = computed(() => props.orientation === "horizontal");
 
 const rootClass = computed(() =>
   mergeClasses(
     "fui-Field",
-    baseClassName.value,
-    styles.value[props.orientation],
+    rootStyles.value.base,
+    isHorizontal.value && rootStyles.value.horizontal,
+    isHorizontal.value && !props.label && rootStyles.value.horizontalNoLabel,
   ),
 );
 
 const labelClass = computed(() =>
   mergeClasses(
     "fui-Field__label",
-    styles.value.label,
-    props.size === "small" && styles.value.labelSmall,
-    props.size === "medium" && styles.value.labelMedium,
-    props.size === "large" && styles.value.labelLarge,
-    props.orientation === "horizontal" && styles.value.horizontalLabel,
+    labelStyles.value.base,
+    isHorizontal.value && labelStyles.value.horizontal,
+    isHorizontal.value &&
+      props.size === "small" &&
+      labelStyles.value.horizontalSmall,
+    isHorizontal.value &&
+      props.size === "large" &&
+      labelStyles.value.horizontalLarge,
+    !isHorizontal.value && labelStyles.value.vertical,
+    !isHorizontal.value &&
+      props.size === "large" &&
+      labelStyles.value.verticalLarge,
   ),
 );
 
-const validationClass = computed(() =>
+const validationMessageClass = computed(() =>
   mergeClasses(
     "fui-Field__validationMessage",
-    styles.value.validationMessage,
-    props.validationState === "success" && styles.value.success,
-    props.validationState === "warning" && styles.value.warning,
-    props.validationState === "error" && styles.value.error,
+    secondaryTextBaseClassName.value,
+    effectiveValidationState.value === "error" &&
+      secondaryTextStyles.value.error,
+    showValidationIcon.value && secondaryTextStyles.value.withIcon,
   ),
+);
+
+const validationMessageIconClass = computed(() =>
+  mergeClasses(
+    "fui-Field__validationMessageIcon",
+    validationMessageIconBaseClassName.value,
+    effectiveValidationState.value !== "none" &&
+      validationMessageIconStyles.value[effectiveValidationState.value],
+  ),
+);
+
+const hintClass = computed(() =>
+  mergeClasses("fui-Field__hint", secondaryTextBaseClassName.value),
 );
 </script>
 
 <template>
   <div :class="rootClass" v-bind="$attrs">
-    <template v-if="orientation === 'horizontal'">
-      <label v-if="label" :id="labelId" :for="fieldId" :class="labelClass">
-        {{ label }}
-        <span v-if="required" :class="styles.required" aria-hidden="true"
-          >*</span
-        >
-      </label>
-      <div :class="styles.horizontalContent">
-        <slot :id="fieldId" :label-id="labelId" />
-        <span
-          v-if="validationMessage && validationState !== 'none'"
-          :id="validationId"
-          :class="validationClass"
-          role="alert"
-        >
-          {{ validationMessage }}
-        </span>
-        <span v-if="hint" :id="hintId" :class="styles.hint">{{ hint }}</span>
-      </div>
-    </template>
-    <template v-else>
-      <label v-if="label" :id="labelId" :for="fieldId" :class="labelClass">
-        {{ label }}
-        <span v-if="required" :class="styles.required" aria-hidden="true"
-          >*</span
-        >
-      </label>
-      <slot :id="fieldId" :label-id="labelId" />
-      <span
-        v-if="validationMessage && validationState !== 'none'"
-        :id="validationId"
-        :class="validationClass"
-        role="alert"
+    <label v-if="label" :id="labelId" :for="controlId" :class="labelClass">
+      {{ label }}
+      <span v-if="required" :class="requiredStyles.asterisk" aria-hidden="true"
+        >*</span
       >
-        {{ validationMessage }}
+    </label>
+    <slot :id="controlId" :label-id="labelId" />
+    <div
+      v-if="validationMessage && effectiveValidationState !== 'none'"
+      :id="validationMessageId"
+      :class="validationMessageClass"
+      :role="validationRole"
+    >
+      <span v-if="showValidationIcon" :class="validationMessageIconClass">
+        <Dismiss12Filled v-if="effectiveValidationState === 'error'" />
+        <Warning12Filled v-if="effectiveValidationState === 'warning'" />
+        <CheckmarkCircle12Filled
+          v-if="effectiveValidationState === 'success'"
+        />
       </span>
-      <span v-if="hint" :id="hintId" :class="styles.hint">{{ hint }}</span>
-    </template>
+      {{ validationMessage }}
+    </div>
+    <div v-if="hint" :id="hintId" :class="hintClass">{{ hint }}</div>
   </div>
 </template>
