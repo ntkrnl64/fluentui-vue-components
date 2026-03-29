@@ -1,17 +1,19 @@
 import type { InjectionKey, Ref } from "vue";
 
 export type RatingSize = "small" | "medium" | "large" | "extra-large";
+export type RatingColor = "brand" | "marigold" | "neutral";
 
-export interface RatingContext {
-  modelValue: Ref<number>;
-  hoverValue: Ref<number | null>;
+export interface RatingItemContext {
+  value: Ref<number>;
+  hoveredValue: Ref<number | undefined>;
+  step: number;
+  name: string;
+  color: RatingColor;
   size: RatingSize;
-  color: "brand" | "marigold" | "neutral";
-  disabled: boolean;
-  readOnly: boolean;
-  selectStar: (index: number) => void;
-  setHover: (index: number | null) => void;
+  interactive: boolean;
+  compact?: boolean;
+  itemLabel?: (value: number) => string;
 }
 
-export const RatingContextKey: InjectionKey<RatingContext> =
-  Symbol("RatingContext");
+export const RatingItemContextKey: InjectionKey<RatingItemContext> =
+  Symbol("RatingItemContext");

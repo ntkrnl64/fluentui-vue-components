@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { Star20Filled } from "@ntkrnl64/fluentui-vue-icons";
+import { computed, provide, ref } from "vue";
 import {
   useStyles,
   useResetStyles,
@@ -8,83 +7,139 @@ import {
   makeStyles,
   makeResetStyles,
 } from "@ntkrnl64/griffel-vue";
-import { tokens } from "@fluentui/react-theme";
-import type { RatingSize } from "./context";
+import { tokens, typographyStyles } from "@fluentui/react-theme";
+import { RatingItemContextKey } from "./context";
+import type { RatingColor, RatingSize } from "./context";
+import { useId } from "../../composables/useId";
 
 export interface RatingDisplayProps {
-  value: number;
+  value?: number;
   max?: number;
   count?: number;
   size?: RatingSize;
-  color?: string;
+  color?: RatingColor;
+  compact?: boolean;
 }
 
 const props = withDefaults(defineProps<RatingDisplayProps>(), {
   max: 5,
   size: "medium",
-  color: "marigold",
+  color: "neutral",
+  compact: false,
 });
 
 defineOptions({ inheritAttrs: false });
 
-const useBaseClass = makeResetStyles({
-  display: "inline-flex",
+const generatedName = useId("rating-display-");
+const valueTextId = useId("rating-value-");
+const countTextId = useId("rating-count-");
+
+const valueRef = computed(() => props.value ?? 0);
+const hoveredValue = ref<number | undefined>(undefined);
+
+const ariaLabelledBy = computed(() => {
+  const parts: string[] = [];
+  if (props.value !== undefined) parts.push(valueTextId);
+  if (props.count !== undefined) parts.push(countTextId);
+  return parts.length > 0 ? parts.join(" ") : undefined;
+});
+
+// --- Styles (matching React's useRatingDisplayStyles.styles.ts exactly) ---
+
+const useRootClassName = makeResetStyles({
+  display: "flex",
+  flexWrap: "wrap",
   alignItems: "center",
-  gap: "2px",
 });
 
-const useDisplayStyles = makeStyles({
-  star: {
-    color: tokens.colorNeutralForeground3,
+const useLabelClassName = makeResetStyles({
+  color: tokens.colorNeutralForeground1,
+  marginLeft: tokens.spacingHorizontalXS,
+  ...typographyStyles.caption1,
+});
+
+const useLabelStyles = makeStyles({
+  large: {
+    fontSize: tokens.fontSizeBase300,
+    lineHeight: tokens.lineHeightBase300,
+    marginLeft: tokens.spacingHorizontalSNudge,
   },
-  filled: { color: tokens.colorPaletteYellowForeground1 },
-  filledBrand: { color: tokens.colorBrandForeground1 },
-  filledNeutral: { color: tokens.colorNeutralForeground1 },
-  small: { fontSize: "16px" },
-  medium: { fontSize: "20px" },
-  large: { fontSize: "24px" },
-  "extra-large": { fontSize: "32px" },
-  count: {
-    fontFamily: tokens.fontFamilyBase,
-    fontSize: tokens.fontSizeBase200,
-    lineHeight: tokens.lineHeightBase200,
-    color: tokens.colorNeutralForeground3,
-    marginLeft: tokens.spacingHorizontalXS,
+  extraLarge: {
+    fontSize: tokens.fontSizeBase400,
+    lineHeight: tokens.lineHeightBase400,
+    marginLeft: tokens.spacingHorizontalS,
+  },
+  strong: {
+    fontWeight: tokens.fontWeightSemibold as unknown as string,
+  },
+  divider: {
+    "::before": {
+      content: '"· "',
+    },
   },
 });
 
-const baseClassName = useResetStyles(useBaseClass);
-const styles = useStyles(useDisplayStyles);
-
-function getStarClass(index: number) {
-  const isFilled = index <= props.value;
-  return mergeClasses(
-    styles.value.star,
-    styles.value[props.size],
-    isFilled &&
-      (props.color === "brand"
-        ? styles.value.filledBrand
-        : props.color === "neutral"
-          ? styles.value.filledNeutral
-          : styles.value.filled),
-  );
-}
+const rootClassName = useResetStyles(useRootClassName);
+const labelClassName = useResetStyles(useLabelClassName);
+const labelStyles = useStyles(useLabelStyles);
 
 const rootClass = computed(() =>
-  mergeClasses("fui-RatingDisplay", baseClassName.value),
+  mergeClasses("fui-RatingDisplay", rootClassName.value),
 );
+
+const valueTextClass = computed(() =>
+  mergeClasses(
+    "fui-RatingDisplay__valueText",
+    labelClassName.value,
+    labelStyles.value.strong,
+    props.size === "large" && labelStyles.value.large,
+    props.size === "extra-large" && labelStyles.value.extraLarge,
+  ),
+);
+
+const countTextClass = computed(() =>
+  mergeClasses(
+    "fui-RatingDisplay__countText",
+    labelClassName.value,
+    props.size === "large" && labelStyles.value.large,
+    props.size === "extra-large" && labelStyles.value.extraLarge,
+    props.value !== undefined && labelStyles.value.divider,
+  ),
+);
+
+const displayMax = computed(() => (props.compact ? 1 : props.max));
+
+provide(RatingItemContextKey, {
+  value: valueRef,
+  hoveredValue,
+  step: 0.5,
+  name: generatedName,
+  color: props.color,
+  size: props.size,
+  interactive: false,
+  compact: props.compact,
+});
 </script>
 
 <template>
   <div
     :class="rootClass"
     role="img"
-    :aria-label="`Rating: ${value} of ${max}`"
+    :aria-labelledby="ariaLabelledBy"
     v-bind="$attrs"
   >
-    <span v-for="i in max" :key="i" :class="getStarClass(i)"
-      ><Star20Filled
-    /></span>
-    <span v-if="count !== undefined" :class="styles.count">({{ count }})</span>
+    <slot>
+      <RatingItem v-for="i in displayMax" :key="i" :value="i" />
+    </slot>
+    <span v-if="value !== undefined" :id="valueTextId" :class="valueTextClass">
+      {{ value }}
+    </span>
+    <span v-if="count !== undefined" :id="countTextId" :class="countTextClass">
+      {{ count.toLocaleString() }}
+    </span>
   </div>
 </template>
+
+<script lang="ts">
+import RatingItem from "./RatingItem.vue";
+</script>

@@ -1,112 +1,97 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { Star20Filled } from "@ntkrnl64/fluentui-vue-icons";
+import { computed, provide, ref } from "vue";
 import {
-  useStyles,
   useResetStyles,
   mergeClasses,
-  makeStyles,
   makeResetStyles,
 } from "@ntkrnl64/griffel-vue";
-import { tokens } from "@fluentui/react-theme";
-
-export type RatingSize = "small" | "medium" | "large" | "extra-large";
+import { useId } from "../../composables/useId";
+import { RatingItemContextKey } from "./context";
+import type { RatingColor, RatingSize } from "./context";
 
 export interface RatingProps {
   max?: number;
+  step?: 0.5 | 1;
   size?: RatingSize;
-  color?: "brand" | "marigold" | "neutral";
-  disabled?: boolean;
-  readOnly?: boolean;
+  color?: RatingColor;
+  name?: string;
 }
 
 const props = withDefaults(defineProps<RatingProps>(), {
   max: 5,
-  size: "medium",
-  color: "marigold",
-  disabled: false,
-  readOnly: false,
+  step: 1,
+  size: "extra-large",
+  color: "neutral",
 });
 
 defineOptions({ inheritAttrs: false });
 const modelValue = defineModel<number>({ default: 0 });
-const hoverValue = ref<number | null>(null);
+const hoveredValue = ref<number | undefined>(undefined);
+const generatedName = useId("rating-");
+const name = computed(() => props.name ?? generatedName);
 
-const useBaseClass = makeResetStyles({
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "2px",
+const useRootClassName = makeResetStyles({
+  display: "flex",
+  flexWrap: "wrap",
 });
 
-const useRatingStyles = makeStyles({
-  star: {
-    cursor: "pointer",
-    color: tokens.colorNeutralForeground3,
-    transitionProperty: "color, transform",
-    transitionDuration: tokens.durationFaster,
-    ":hover": { transform: "scale(1.1)" },
-  },
-  filled: { color: tokens.colorPaletteYellowForeground1 },
-  filledBrand: { color: tokens.colorBrandForeground1 },
-  filledNeutral: { color: tokens.colorNeutralForeground1 },
-  disabled: { cursor: "not-allowed", opacity: 0.4 },
-  readOnly: { cursor: "default", ":hover": { transform: "none" } },
-  small: { fontSize: "16px" },
-  medium: { fontSize: "20px" },
-  large: { fontSize: "24px" },
-  "extra-large": { fontSize: "32px" },
-});
-
-const baseClassName = useResetStyles(useBaseClass);
-const styles = useStyles(useRatingStyles);
-
+const rootClassName = useResetStyles(useRootClassName);
 const rootClass = computed(() =>
-  mergeClasses("fui-Rating", baseClassName.value),
+  mergeClasses("fui-Rating", rootClassName.value),
 );
 
-function getStarClass(index: number) {
-  const displayVal = hoverValue.value ?? modelValue.value;
-  const isFilled = index <= displayVal;
-  return mergeClasses(
-    styles.value.star,
-    styles.value[props.size],
-    isFilled &&
-      (props.color === "brand"
-        ? styles.value.filledBrand
-        : props.color === "neutral"
-          ? styles.value.filledNeutral
-          : styles.value.filled),
-    props.disabled && styles.value.disabled,
-    props.readOnly && styles.value.readOnly,
-  );
+// Handle change from radio inputs bubbling up
+function handleChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.type === "radio" && target.name === name.value) {
+    const newValue = parseFloat(target.value);
+    if (!isNaN(newValue)) {
+      modelValue.value = newValue;
+    }
+  }
 }
 
-function selectStar(index: number) {
-  if (props.disabled || props.readOnly) return;
-  modelValue.value = index;
+function handleMouseOver(event: MouseEvent) {
+  const target = event.target as HTMLInputElement;
+  if (target.type === "radio" && target.name === name.value) {
+    const newValue = parseFloat(target.value);
+    if (!isNaN(newValue)) {
+      hoveredValue.value = newValue;
+    }
+  }
 }
+
+function handleMouseLeave() {
+  hoveredValue.value = undefined;
+}
+
+provide(RatingItemContextKey, {
+  value: modelValue,
+  hoveredValue,
+  step: props.step,
+  name: name.value,
+  color: props.color,
+  size: props.size,
+  interactive: true,
+  itemLabel: undefined,
+});
 </script>
 
 <template>
   <div
     :class="rootClass"
     role="radiogroup"
-    :aria-label="`Rating: ${modelValue} of ${max}`"
     v-bind="$attrs"
+    @change="handleChange"
+    @mouseover="handleMouseOver"
+    @mouseleave="handleMouseLeave"
   >
-    <span
-      v-for="i in max"
-      :key="i"
-      :class="getStarClass(i)"
-      role="radio"
-      :aria-checked="i === modelValue"
-      :aria-label="`${i} star${i > 1 ? 's' : ''}`"
-      tabindex="0"
-      @click="selectStar(i)"
-      @mouseenter="!disabled && !readOnly && (hoverValue = i)"
-      @mouseleave="hoverValue = null"
-      @keydown.enter.space.prevent="selectStar(i)"
-      ><Star20Filled
-    /></span>
+    <slot>
+      <RatingItem v-for="i in max" :key="i" :value="i" />
+    </slot>
   </div>
 </template>
+
+<script lang="ts">
+import RatingItem from "./RatingItem.vue";
+</script>
