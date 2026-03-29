@@ -2,12 +2,12 @@
 import { computed, useSlots } from "vue";
 import {
   useStyles,
-  useResetStyles,
   mergeClasses,
   makeStyles,
-  makeResetStyles,
+  shorthands,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
+import { useId } from "../../composables/useId";
 
 export type DividerAppearance = "default" | "subtle" | "brand" | "strong";
 export type DividerAlign = "start" | "center" | "end";
@@ -29,101 +29,240 @@ const props = withDefaults(defineProps<DividerProps>(), {
 defineOptions({ inheritAttrs: false });
 
 const slots = useSlots();
+const dividerId = useId("divider-");
+const hasContent = computed(() => !!slots.default);
 
-const useBaseClass = makeResetStyles({
-  alignItems: "center",
-  boxSizing: "border-box",
-  display: "flex",
-  flexDirection: "row",
-  flexGrow: 1,
-  position: "relative",
-  fontFamily: tokens.fontFamilyBase,
-  fontSize: tokens.fontSizeBase200,
-  lineHeight: tokens.lineHeightBase200,
-  fontWeight: tokens.fontWeightRegular,
-  color: tokens.colorNeutralForeground2,
-  "::before": {
+const contentSpacing = "12px";
+const insetSpacing = "12px";
+const maxStartEndLength = "8px";
+const minStartEndLength = "8px";
+
+const useBaseStyles = makeStyles({
+  base: {
+    alignItems: "center",
     boxSizing: "border-box",
     display: "flex",
+    flexDirection: "row",
     flexGrow: 1,
-    borderTopColor: tokens.colorNeutralStroke2,
-    borderTopStyle: "solid",
-    borderTopWidth: tokens.strokeWidthThin,
-    content: '""',
+    position: "relative",
+
+    fontFamily: tokens.fontFamilyBase,
+    fontSize: tokens.fontSizeBase200,
+    fontWeight: tokens.fontWeightRegular as unknown as string,
+    lineHeight: tokens.lineHeightBase200,
+    textAlign: "center",
+
+    "::before": {
+      boxSizing: "border-box",
+      display: "flex",
+      flexGrow: 1,
+    },
+    "::after": {
+      boxSizing: "border-box",
+      display: "flex",
+      flexGrow: 1,
+    },
   },
-  "::after": {
-    boxSizing: "border-box",
-    display: "flex",
-    flexGrow: 1,
-    borderTopColor: tokens.colorNeutralStroke2,
-    borderTopStyle: "solid",
-    borderTopWidth: tokens.strokeWidthThin,
-    content: '""',
+
+  childless: {
+    "::before": {
+      marginBottom: 0,
+      marginRight: 0,
+    },
+    "::after": {
+      marginLeft: 0,
+      marginTop: 0,
+    },
+  },
+
+  // Alignment variations (content pseudo-element placement)
+  start: {
+    "::after": {
+      content: '""',
+    },
+  },
+  center: {
+    "::before": {
+      content: '""',
+    },
+    "::after": {
+      content: '""',
+    },
+  },
+  end: {
+    "::before": {
+      content: '""',
+    },
+  },
+
+  // Appearance variations
+  brand: {
+    color: tokens.colorBrandForeground1,
+    "::before": {
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
+    },
+    "::after": {
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
+    },
+  },
+  default: {
+    color: tokens.colorNeutralForeground2,
+    "::before": {
+      ...shorthands.borderColor(tokens.colorNeutralStroke2),
+    },
+    "::after": {
+      ...shorthands.borderColor(tokens.colorNeutralStroke2),
+    },
+  },
+  subtle: {
+    color: tokens.colorNeutralForeground3,
+    "::before": {
+      ...shorthands.borderColor(tokens.colorNeutralStroke3),
+    },
+    "::after": {
+      ...shorthands.borderColor(tokens.colorNeutralStroke3),
+    },
+  },
+  strong: {
+    color: tokens.colorNeutralForeground1,
+    "::before": {
+      ...shorthands.borderColor(tokens.colorNeutralStroke1),
+    },
+    "::after": {
+      ...shorthands.borderColor(tokens.colorNeutralStroke1),
+    },
   },
 });
 
-const useDividerStyles = makeStyles({
-  vertical: {
+const useHorizontalStyles = makeStyles({
+  base: {
+    width: "100%",
+    "::before": {
+      borderTopStyle: "solid",
+      borderTopWidth: tokens.strokeWidthThin,
+      minWidth: minStartEndLength,
+    },
+    "::after": {
+      borderTopStyle: "solid",
+      borderTopWidth: tokens.strokeWidthThin,
+      minWidth: minStartEndLength,
+    },
+  },
+  inset: {
+    paddingLeft: insetSpacing,
+    paddingRight: insetSpacing,
+  },
+  start: {
+    textAlign: "left",
+    "::before": {
+      content: '""',
+      marginRight: contentSpacing,
+      maxWidth: maxStartEndLength,
+    },
+    "::after": {
+      marginLeft: contentSpacing,
+    },
+  },
+  center: {
+    textAlign: "center",
+    "::before": {
+      marginRight: contentSpacing,
+    },
+    "::after": {
+      marginLeft: contentSpacing,
+    },
+  },
+  end: {
+    textAlign: "right",
+    "::before": {
+      marginRight: contentSpacing,
+    },
+    "::after": {
+      content: '""',
+      marginLeft: contentSpacing,
+      maxWidth: maxStartEndLength,
+    },
+  },
+});
+
+const useVerticalStyles = makeStyles({
+  base: {
     flexDirection: "column",
     minHeight: "20px",
     "::before": {
-      borderTopStyle: "none",
-      borderRightColor: tokens.colorNeutralStroke2,
       borderRightStyle: "solid",
       borderRightWidth: tokens.strokeWidthThin,
-      minHeight: "8px",
+      minHeight: minStartEndLength,
     },
     "::after": {
-      borderTopStyle: "none",
-      borderRightColor: tokens.colorNeutralStroke2,
       borderRightStyle: "solid",
       borderRightWidth: tokens.strokeWidthThin,
-      minHeight: "8px",
+      minHeight: minStartEndLength,
     },
   },
-  inset: { paddingLeft: "12px", paddingRight: "12px" },
-  insetVertical: { paddingTop: "12px", paddingBottom: "12px" },
-  brand: {
-    color: tokens.colorBrandForeground1,
-    "::before": { borderTopColor: tokens.colorBrandStroke1 },
-    "::after": { borderTopColor: tokens.colorBrandStroke1 },
+  inset: {
+    marginTop: insetSpacing,
+    marginBottom: insetSpacing,
   },
-  subtle: {
-    "::before": { borderTopColor: tokens.colorNeutralStroke3 },
-    "::after": { borderTopColor: tokens.colorNeutralStroke3 },
-  },
-  strong: {
-    "::before": { borderTopColor: tokens.colorNeutralStroke1 },
-    "::after": { borderTopColor: tokens.colorNeutralStroke1 },
+  withChildren: {
+    minHeight: "84px",
   },
   start: {
-    "::before": { flexGrow: 0, flexBasis: "8px" },
+    "::before": {
+      content: '""',
+      marginBottom: contentSpacing,
+      maxHeight: maxStartEndLength,
+    },
+    "::after": {
+      marginTop: contentSpacing,
+    },
+  },
+  center: {
+    "::before": {
+      marginBottom: contentSpacing,
+    },
+    "::after": {
+      marginTop: contentSpacing,
+    },
   },
   end: {
-    "::after": { flexGrow: 0, flexBasis: "8px" },
-  },
-  hasContent: {
-    "::before": { marginRight: "12px" },
-    "::after": { marginLeft: "12px" },
+    "::before": {
+      marginBottom: contentSpacing,
+    },
+    "::after": {
+      content: '""',
+      marginTop: contentSpacing,
+      maxHeight: maxStartEndLength,
+    },
   },
 });
 
-const baseClassName = useResetStyles(useBaseClass);
-const styles = useStyles(useDividerStyles);
-
-const hasContent = computed(() => !!slots.default);
+const baseStyles = useStyles(useBaseStyles);
+const horizontalStyles = useStyles(useHorizontalStyles);
+const verticalStyles = useStyles(useVerticalStyles);
 
 const rootClass = computed(() =>
   mergeClasses(
     "fui-Divider",
-    baseClassName.value,
-    props.vertical && styles.value.vertical,
-    props.inset && !props.vertical && styles.value.inset,
-    props.inset && props.vertical && styles.value.insetVertical,
-    props.appearance !== "default" && styles.value[props.appearance],
-    props.alignContent === "start" && styles.value.start,
-    props.alignContent === "end" && styles.value.end,
-    hasContent.value && styles.value.hasContent,
+
+    // Base styles
+    baseStyles.value.base,
+    baseStyles.value[props.alignContent],
+    baseStyles.value[props.appearance],
+
+    // Horizontal styles
+    !props.vertical && horizontalStyles.value.base,
+    !props.vertical && props.inset && horizontalStyles.value.inset,
+    !props.vertical && horizontalStyles.value[props.alignContent],
+
+    // Vertical styles
+    props.vertical && verticalStyles.value.base,
+    props.vertical && props.inset && verticalStyles.value.inset,
+    props.vertical && verticalStyles.value[props.alignContent],
+    props.vertical && hasContent.value && verticalStyles.value.withChildren,
+
+    // Childless styles
+    !hasContent.value && baseStyles.value.childless,
   ),
 );
 </script>
@@ -133,8 +272,11 @@ const rootClass = computed(() =>
     :class="rootClass"
     role="separator"
     :aria-orientation="vertical ? 'vertical' : 'horizontal'"
+    :aria-labelledby="hasContent ? dividerId : undefined"
     v-bind="$attrs"
   >
-    <slot />
+    <div v-if="hasContent" :id="dividerId" class="fui-Divider__wrapper">
+      <slot />
+    </div>
   </div>
 </template>
