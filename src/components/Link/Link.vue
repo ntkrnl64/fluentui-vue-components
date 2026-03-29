@@ -6,6 +6,7 @@ import {
   mergeClasses,
   makeStyles,
   makeResetStyles,
+  shorthands,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
 
@@ -33,13 +34,14 @@ const useBaseClass = makeResetStyles({
   cursor: "pointer",
   display: "inline",
   fontFamily: tokens.fontFamilyBase,
-  fontSize: "inherit",
+  fontSize: tokens.fontSizeBase300,
   fontWeight: tokens.fontWeightRegular,
   margin: "0",
   overflow: "inherit",
   padding: "0",
   textAlign: "left",
   textDecorationLine: "none",
+  textDecorationThickness: tokens.strokeWidthThin,
   textOverflow: "inherit",
   userSelect: "text",
   ":hover": {
@@ -59,6 +61,12 @@ const useBaseClass = makeResetStyles({
 });
 
 const useLinkStyles = makeStyles({
+  button: {
+    ...shorthands.borderStyle("none"),
+  },
+  href: {
+    fontSize: "inherit",
+  },
   subtle: {
     color: tokens.colorNeutralForeground2,
     ":hover": { color: tokens.colorNeutralForeground2Hover },
@@ -89,6 +97,8 @@ const rootClass = computed(() =>
   mergeClasses(
     "fui-Link",
     baseClassName.value,
+    props.as === "a" && styles.value.href,
+    props.as === "button" && styles.value.button,
     props.appearance === "subtle" && styles.value.subtle,
     props.inline && styles.value.inline,
     props.disabled && styles.value.disabled,
