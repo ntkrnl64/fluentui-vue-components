@@ -15,16 +15,6 @@ const ctx = inject(DialogContextKey)!;
 
 defineOptions({ inheritAttrs: false });
 
-const scaleInKeyframes = {
-  from: { opacity: 0, transform: "scale(0.85)" },
-  to: { opacity: 1, transform: "scale(1)" },
-};
-
-const fadeInKeyframes = {
-  from: { opacity: 0 },
-  to: { opacity: 1 },
-};
-
 const useBaseClass = makeResetStyles({
   position: "fixed",
   top: "0",
@@ -41,41 +31,28 @@ const useSurfaceStyles = makeStyles({
   backdrop: {
     position: "fixed",
     inset: "0",
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-    animationName: fadeInKeyframes,
-    animationDuration: tokens.durationGentle,
-    animationTimingFunction: tokens.curveEasyEase,
-    animationFillMode: "forwards",
-    "@media screen and (prefers-reduced-motion: reduce)": {
-      animationDuration: "0.01ms",
-    },
+    backgroundColor: tokens.colorBackgroundOverlay,
   },
   surface: {
     position: "relative",
     backgroundColor: tokens.colorNeutralBackground1,
     color: tokens.colorNeutralForeground1,
+    border: "1px solid " + tokens.colorTransparentStroke,
     boxShadow: tokens.shadow64,
+    boxSizing: "border-box",
     ...shorthands.borderRadius(tokens.borderRadiusXLarge),
     ...shorthands.padding(
       tokens.spacingVerticalXXL,
       tokens.spacingHorizontalXXL,
     ),
     maxWidth: "600px",
-    maxHeight: "80vh",
+    maxHeight: "100vh",
     width: "100%",
     margin: tokens.spacingHorizontalXXL,
     display: "flex",
     flexDirection: "column",
     overflowY: "auto",
     zIndex: 1,
-    // Scale + fade entrance animation
-    animationName: scaleInKeyframes,
-    animationDuration: tokens.durationGentle,
-    animationTimingFunction: tokens.curveDecelerateMid,
-    animationFillMode: "forwards",
-    "@media screen and (prefers-reduced-motion: reduce)": {
-      animationDuration: "0.01ms",
-    },
   },
 });
 
@@ -83,6 +60,80 @@ const baseClassName = useResetStyles(useBaseClass);
 const styles = useStyles(useSurfaceStyles);
 
 const surfaceRef = ref<HTMLElement | null>(null);
+const backdropRef = ref<HTMLElement | null>(null);
+
+// Local visibility flag: stays true during exit animation
+const mounted = ref(false);
+let exitAnimations: Animation[] = [];
+
+// Motion tokens (matching React's DialogSurfaceMotion / DialogBackdropMotion)
+const DURATION_GENTLE = 250;
+const DURATION_NORMAL = 200;
+const CURVE_DECELERATE_MID = "cubic-bezier(0.1, 0.9, 0.2, 1)";
+const CURVE_ACCELERATE_MIN = "cubic-bezier(0.8, 0, 1, 1)";
+const CURVE_EASY_EASE = "cubic-bezier(0.33, 0, 0.67, 1)";
+
+const prefersReducedMotion =
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function animateEnter() {
+  const duration = prefersReducedMotion ? 1 : DURATION_GENTLE;
+
+  // Surface: scale(0.85) + fade -> scale(1) + opaque
+  surfaceRef.value?.animate(
+    [
+      { opacity: 0, transform: "scale(0.85)" },
+      { opacity: 1, transform: "scale(1)" },
+    ],
+    { duration, easing: CURVE_DECELERATE_MID, fill: "forwards" },
+  );
+
+  // Backdrop: fade in
+  backdropRef.value?.animate([{ opacity: 0 }, { opacity: 1 }], {
+    duration,
+    easing: CURVE_EASY_EASE,
+    fill: "forwards",
+  });
+}
+
+function animateExit(): Promise<void> {
+  if (prefersReducedMotion) {
+    return Promise.resolve();
+  }
+
+  const promises: Promise<void>[] = [];
+
+  // Surface: scale(1) + opaque -> scale(0.85) + fade
+  if (surfaceRef.value) {
+    const anim = surfaceRef.value.animate(
+      [
+        { opacity: 1, transform: "scale(1)" },
+        { opacity: 0, transform: "scale(0.85)" },
+      ],
+      {
+        duration: DURATION_GENTLE,
+        easing: CURVE_ACCELERATE_MIN,
+        fill: "forwards",
+      },
+    );
+    exitAnimations.push(anim);
+    promises.push(anim.finished.then(() => {}));
+  }
+
+  // Backdrop: fade out
+  if (backdropRef.value) {
+    const anim = backdropRef.value.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: DURATION_GENTLE,
+      easing: CURVE_EASY_EASE,
+      fill: "forwards",
+    });
+    exitAnimations.push(anim);
+    promises.push(anim.finished.then(() => {}));
+  }
+
+  return Promise.all(promises).then(() => {});
+}
 
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === "Escape" && ctx.modalType !== "alert") {
@@ -96,21 +147,33 @@ function handleBackdropClick() {
   }
 }
 
-// Reactively manage body scroll lock and keydown listener
 watch(
   () => ctx.open.value,
-  (isOpen) => {
+  async (isOpen) => {
     if (isOpen) {
+      // Cancel any running exit animations
+      exitAnimations.forEach((a) => a.cancel());
+      exitAnimations = [];
+
+      // Mount the DOM
+      mounted.value = true;
       document.addEventListener("keydown", handleKeydown);
       if (ctx.modalType === "modal") {
         document.body.style.overflow = "hidden";
       }
-      nextTick(() => {
-        surfaceRef.value?.focus();
-      });
+
+      // Wait for DOM, then animate in
+      await nextTick();
+      animateEnter();
+      surfaceRef.value?.focus();
     } else {
       document.removeEventListener("keydown", handleKeydown);
+
+      // Play exit animation, then unmount
+      await animateExit();
+      mounted.value = false;
       document.body.style.overflow = "";
+      exitAnimations = [];
     }
   },
   { immediate: true },
@@ -119,17 +182,22 @@ watch(
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeydown);
   document.body.style.overflow = "";
+  exitAnimations.forEach((a) => a.cancel());
 });
 </script>
 
 <template>
   <Teleport to="body">
     <div
-      v-if="ctx.open.value"
+      v-if="mounted"
       :class="mergeClasses('fui-DialogSurface', baseClassName)"
       v-bind="$attrs"
     >
-      <div :class="styles.backdrop" @click="handleBackdropClick" />
+      <div
+        ref="backdropRef"
+        :class="styles.backdrop"
+        @click="handleBackdropClick"
+      />
       <div
         ref="surfaceRef"
         :class="styles.surface"
