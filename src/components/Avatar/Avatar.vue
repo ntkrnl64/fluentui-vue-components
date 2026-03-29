@@ -130,6 +130,194 @@ const useAvatarStyles = makeStyles({
 const baseClassName = useResetStyles(useBaseClass);
 const styles = useStyles(useAvatarStyles);
 
+const colorfulColors = [
+  "dark-red",
+  "cranberry",
+  "red",
+  "pumpkin",
+  "peach",
+  "marigold",
+  "gold",
+  "brass",
+  "brown",
+  "forest",
+  "seafoam",
+  "dark-green",
+  "light-teal",
+  "teal",
+  "steel",
+  "blue",
+  "royal-blue",
+  "cornflower",
+  "navy",
+  "lavender",
+  "purple",
+  "grape",
+  "lilac",
+  "pink",
+  "magenta",
+  "plum",
+  "beige",
+  "mink",
+  "platinum",
+  "anchor",
+] as const;
+
+const colorfulColorMap: Record<
+  string,
+  { background: string; foreground: string }
+> = {
+  "dark-red": {
+    background: tokens.colorPaletteDarkRedBackground2,
+    foreground: tokens.colorPaletteDarkRedForeground2,
+  },
+  cranberry: {
+    background: tokens.colorPaletteCranberryBackground2,
+    foreground: tokens.colorPaletteCranberryForeground2,
+  },
+  red: {
+    background: tokens.colorPaletteRedBackground2,
+    foreground: tokens.colorPaletteRedForeground2,
+  },
+  pumpkin: {
+    background: tokens.colorPalettePumpkinBackground2,
+    foreground: tokens.colorPalettePumpkinForeground2,
+  },
+  peach: {
+    background: tokens.colorPalettePeachBackground2,
+    foreground: tokens.colorPalettePeachForeground2,
+  },
+  marigold: {
+    background: tokens.colorPaletteMarigoldBackground2,
+    foreground: tokens.colorPaletteMarigoldForeground2,
+  },
+  gold: {
+    background: tokens.colorPaletteGoldBackground2,
+    foreground: tokens.colorPaletteGoldForeground2,
+  },
+  brass: {
+    background: tokens.colorPaletteBrassBackground2,
+    foreground: tokens.colorPaletteBrassForeground2,
+  },
+  brown: {
+    background: tokens.colorPaletteBrownBackground2,
+    foreground: tokens.colorPaletteBrownForeground2,
+  },
+  forest: {
+    background: tokens.colorPaletteForestBackground2,
+    foreground: tokens.colorPaletteForestForeground2,
+  },
+  seafoam: {
+    background: tokens.colorPaletteSeafoamBackground2,
+    foreground: tokens.colorPaletteSeafoamForeground2,
+  },
+  "dark-green": {
+    background: tokens.colorPaletteDarkGreenBackground2,
+    foreground: tokens.colorPaletteDarkGreenForeground2,
+  },
+  "light-teal": {
+    background: tokens.colorPaletteLightTealBackground2,
+    foreground: tokens.colorPaletteLightTealForeground2,
+  },
+  teal: {
+    background: tokens.colorPaletteTealBackground2,
+    foreground: tokens.colorPaletteTealForeground2,
+  },
+  steel: {
+    background: tokens.colorPaletteSteelBackground2,
+    foreground: tokens.colorPaletteSteelForeground2,
+  },
+  blue: {
+    background: tokens.colorPaletteBlueBackground2,
+    foreground: tokens.colorPaletteBlueForeground2,
+  },
+  "royal-blue": {
+    background: tokens.colorPaletteRoyalBlueBackground2,
+    foreground: tokens.colorPaletteRoyalBlueForeground2,
+  },
+  cornflower: {
+    background: tokens.colorPaletteCornflowerBackground2,
+    foreground: tokens.colorPaletteCornflowerForeground2,
+  },
+  navy: {
+    background: tokens.colorPaletteNavyBackground2,
+    foreground: tokens.colorPaletteNavyForeground2,
+  },
+  lavender: {
+    background: tokens.colorPaletteLavenderBackground2,
+    foreground: tokens.colorPaletteLavenderForeground2,
+  },
+  purple: {
+    background: tokens.colorPalettePurpleBackground2,
+    foreground: tokens.colorPalettePurpleForeground2,
+  },
+  grape: {
+    background: tokens.colorPaletteGrapeBackground2,
+    foreground: tokens.colorPaletteGrapeForeground2,
+  },
+  lilac: {
+    background: tokens.colorPaletteLilacBackground2,
+    foreground: tokens.colorPaletteLilacForeground2,
+  },
+  pink: {
+    background: tokens.colorPalettePinkBackground2,
+    foreground: tokens.colorPalettePinkForeground2,
+  },
+  magenta: {
+    background: tokens.colorPaletteMagentaBackground2,
+    foreground: tokens.colorPaletteMagentaForeground2,
+  },
+  plum: {
+    background: tokens.colorPalettePlumBackground2,
+    foreground: tokens.colorPalettePlumForeground2,
+  },
+  beige: {
+    background: tokens.colorPaletteBeigeBackground2,
+    foreground: tokens.colorPaletteBeigeForeground2,
+  },
+  mink: {
+    background: tokens.colorPaletteMinkBackground2,
+    foreground: tokens.colorPaletteMinkForeground2,
+  },
+  platinum: {
+    background: tokens.colorPalettePlatinumBackground2,
+    foreground: tokens.colorPalettePlatinumForeground2,
+  },
+  anchor: {
+    background: tokens.colorPaletteAnchorBackground2,
+    foreground: tokens.colorPaletteAnchorForeground2,
+  },
+};
+
+function hashName(name: string): number {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash += name.charCodeAt(i);
+  }
+  return hash % 30;
+}
+
+const resolvedColor = computed(() => {
+  let colorName = props.color;
+  if (colorName === "colorful") {
+    const index = hashName(props.name ?? "");
+    colorName = colorfulColors[index];
+  }
+  if (colorName !== "neutral" && colorName !== "brand") {
+    return colorfulColorMap[colorName] ?? null;
+  }
+  return null;
+});
+
+const colorStyle = computed(() => {
+  const c = resolvedColor.value;
+  if (!c) return {};
+  return {
+    backgroundColor: c.background,
+    color: c.foreground,
+  };
+});
+
 const computedInitials = computed(() => {
   if (props.initials) return props.initials;
   if (!props.name) return "";
@@ -159,7 +347,7 @@ const rootClass = computed(() =>
 <template>
   <span
     :class="rootClass"
-    :style="sizeStyle"
+    :style="{ ...sizeStyle, ...colorStyle }"
     role="img"
     :aria-label="name"
     v-bind="$attrs"
