@@ -16,6 +16,12 @@ export const useButtonBaseClassName = makeResetStyles({
   fontFamily: tokens.fontFamilyBase,
   outlineStyle: "none",
   position: "relative",
+  transitionDuration: tokens.durationFaster,
+  transitionProperty: "background, border, color",
+  transitionTimingFunction: tokens.curveEasyEase,
+  "@media screen and (prefers-reduced-motion: reduce)": {
+    transitionDuration: "0.01ms",
+  },
   ":hover": {
     backgroundColor: tokens.colorNeutralBackground1Hover,
     ...shorthands.borderColor(tokens.colorNeutralStroke1Hover),
@@ -39,16 +45,16 @@ export const useButtonStyles = makeStyles({
   // Appearances
   primary: {
     backgroundColor: tokens.colorBrandBackground,
-    ...shorthands.borderColor(tokens.colorBrandBackground),
+    ...shorthands.borderColor("transparent"),
     color: tokens.colorNeutralForegroundOnBrand,
     ":hover": {
       backgroundColor: tokens.colorBrandBackgroundHover,
-      ...shorthands.borderColor(tokens.colorBrandBackgroundHover),
+      ...shorthands.borderColor("transparent"),
       color: tokens.colorNeutralForegroundOnBrand,
     },
     ":hover:active": {
       backgroundColor: tokens.colorBrandBackgroundPressed,
-      ...shorthands.borderColor(tokens.colorBrandBackgroundPressed),
+      ...shorthands.borderColor("transparent"),
       color: tokens.colorNeutralForegroundOnBrand,
     },
   },
