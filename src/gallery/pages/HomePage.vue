@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { Text, Subtitle1, Body1, LargeTitle, Subtitle2 } from "../../index";
+import { Subtitle1, Body1, LargeTitle, Subtitle2 } from "../../index";
 
 const router = useRouter();
 

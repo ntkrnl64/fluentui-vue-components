@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onMounted } from "vue";
+import { inject } from "vue";
 import {
   useResetStyles,
   mergeClasses,
@@ -8,7 +8,7 @@ import {
 import { TeachingPopoverContextKey } from "./context";
 
 defineOptions({ inheritAttrs: false });
-const ctx = inject(TeachingPopoverContextKey)!;
+inject(TeachingPopoverContextKey)!;
 
 const useBaseClass = makeResetStyles({
   display: "flex",

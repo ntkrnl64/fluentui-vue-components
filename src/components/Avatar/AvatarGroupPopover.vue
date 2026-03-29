@@ -44,10 +44,10 @@ const usePopoverStyles = makeStyles({
     fontWeight: tokens.fontWeightSemibold as string,
     cursor: "pointer",
     ":hover": {
-      backgroundColor: tokens.colorNeutralBackground6Hover,
+      backgroundColor: tokens.colorNeutralBackground1Hover,
     },
     ":active": {
-      backgroundColor: tokens.colorNeutralBackground6Pressed,
+      backgroundColor: tokens.colorNeutralBackground1Pressed,
     },
   },
   surface: {

@@ -409,11 +409,6 @@ function handleTriggerFocus(event: FocusEvent) {
 function handleTriggerClick() {
   if (!props.disabled) setOpen(!open.value);
 }
-function handleExpandIconMouseDown(event: MouseEvent) {
-  event.preventDefault();
-  setOpen(!open.value);
-  (triggerRef.value as HTMLButtonElement | null)?.focus();
-}
 function handleListboxMouseDown(event: MouseEvent) {
   event.preventDefault();
 }

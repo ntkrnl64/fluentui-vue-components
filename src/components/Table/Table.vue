@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { provide, ref, computed } from "vue";
+import { provide, ref } from "vue";
 import type { Ref } from "vue";
 import {
-  useStyles,
   useResetStyles,
   mergeClasses,
-  makeStyles,
   makeResetStyles,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";

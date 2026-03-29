@@ -52,7 +52,7 @@ const styles = useStyles(useHeaderStyles);
 
 const sortDir = computed(() => {
   if (ctx.sortState.value?.columnId === props.columnId)
-    return ctx.sortState.value.direction;
+    return ctx.sortState.value!.direction;
   return undefined;
 });
 

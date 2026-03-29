@@ -1,7 +1,5 @@
-import { inject, computed, onMounted, onUnmounted } from "vue";
-import type { Ref } from "vue";
+import { inject, computed } from "vue";
 import { TabsterKey } from "../contexts";
-import { getModalizer, Types as TabsterTypes } from "tabster";
 
 export interface ModalAttributesOptions {
   trapFocus?: boolean;

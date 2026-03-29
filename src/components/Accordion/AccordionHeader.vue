@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, useSlots } from "vue";
+import { inject, computed } from "vue";
 import { ChevronRight20Regular } from "@ntkrnl64/fluentui-vue-icons";
 import {
   useStyles,
@@ -14,7 +14,6 @@ import { AccordionItemContextKey } from "./context";
 
 defineOptions({ inheritAttrs: false });
 
-const slots = useSlots();
 const itemCtx = inject(AccordionItemContextKey)!;
 
 const useBaseClass = makeResetStyles({

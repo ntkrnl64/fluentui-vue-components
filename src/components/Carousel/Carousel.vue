@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, ref, computed } from "vue";
+import { provide, ref } from "vue";
 import {
   useResetStyles,
   mergeClasses,

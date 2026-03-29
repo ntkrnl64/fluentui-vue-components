@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, reactive, h } from "vue";
+import { provide, reactive } from "vue";
 import type { VNode } from "vue";
 import {
   useResetStyles,

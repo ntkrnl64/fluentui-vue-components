@@ -23,7 +23,7 @@ export function usePresenceMotion(
 ) {
   let currentAnimation: Animation | null = null;
 
-  const stopWatch = watch(visible, (isVisible, wasVisible) => {
+  const stopWatch = watch(visible, (isVisible, _wasVisible) => {
     const el = elementRef.value;
     if (!el) return;
 

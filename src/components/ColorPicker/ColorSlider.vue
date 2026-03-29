@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, ref } from "vue";
+import { inject, computed } from "vue";
 import {
   useResetStyles,
   mergeClasses,

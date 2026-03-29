@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots } from "vue";
+import { computed } from "vue";
 import {
   useStyles,
   useResetStyles,
@@ -79,8 +79,6 @@ const props = withDefaults(defineProps<AvatarProps>(), {
 });
 
 defineOptions({ inheritAttrs: false });
-const slots = useSlots();
-
 const useBaseClass = makeResetStyles({
   display: "inline-flex",
   alignItems: "center",

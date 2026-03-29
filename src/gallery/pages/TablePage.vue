@@ -9,7 +9,6 @@ import {
   TableHeaderCell,
   TableSelectionCell,
   TableCellLayout,
-  Button,
 } from "../../index";
 import ControlExample from "../ControlExample.vue";
 

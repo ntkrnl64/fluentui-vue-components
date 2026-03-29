@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted, inject } from "vue";
+import { ref, watch, onUnmounted, inject } from "vue";
 import { Play20Filled, Pause20Filled } from "@ntkrnl64/fluentui-vue-icons";
 import {
   useResetStyles,

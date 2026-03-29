@@ -340,7 +340,7 @@ const labelClass = computed(() => {
   );
 });
 
-function onChange(e: Event) {
+function onChange(_e: Event) {
   if (props.disabled) return;
   checked.value = !checked.value;
 }

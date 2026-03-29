@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { Component } from "vue";
 import {
-  Home20Regular,
   FormNew20Regular,
   Table20Regular,
   Chat20Regular,

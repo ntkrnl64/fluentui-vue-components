@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, watch, ref, onUnmounted, nextTick } from "vue";
+import { inject, watch, ref, onUnmounted, nextTick } from "vue";
 import {
   useStyles,
   useResetStyles,
@@ -68,7 +68,6 @@ let exitAnimations: Animation[] = [];
 
 // Motion tokens (matching React's DialogSurfaceMotion / DialogBackdropMotion)
 const DURATION_GENTLE = 250;
-const DURATION_NORMAL = 200;
 const CURVE_DECELERATE_MID = "cubic-bezier(0.1, 0.9, 0.2, 1)";
 const CURVE_ACCELERATE_MIN = "cubic-bezier(0.8, 0, 1, 1)";
 const CURVE_EASY_EASE = "cubic-bezier(0.33, 0, 0.67, 1)";

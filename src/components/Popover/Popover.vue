@@ -50,8 +50,6 @@ watch(
   { immediate: true },
 );
 
-const isControlled = computed(() => props.open !== null);
-
 function toggleOpen() {
   const next = !internalOpen.value;
   internalOpen.value = next;

@@ -1,6 +1,7 @@
 import { inject, computed } from "vue";
 import { TabsterKey } from "../contexts";
-import { Types as TabsterTypes } from "tabster";
+import { GroupperTabbabilities } from "tabster";
+import type { Types as TabsterTypes } from "tabster";
 
 export interface FocusableGroupOptions {
   tabBehavior?: "unlimited" | "limited" | "limited-trap-focus";
@@ -20,13 +21,13 @@ export function useFocusableGroup(options: FocusableGroupOptions = {}) {
     let tabbability: TabsterTypes.GroupperTabbability;
     switch (options.tabBehavior) {
       case "limited":
-        tabbability = TabsterTypes.GroupperTabbabilities.Limited;
+        tabbability = GroupperTabbabilities.Limited;
         break;
       case "limited-trap-focus":
-        tabbability = TabsterTypes.GroupperTabbabilities.LimitedTrapFocus;
+        tabbability = GroupperTabbabilities.LimitedTrapFocus;
         break;
       default:
-        tabbability = TabsterTypes.GroupperTabbabilities.Unlimited;
+        tabbability = GroupperTabbabilities.Unlimited;
     }
 
     return {

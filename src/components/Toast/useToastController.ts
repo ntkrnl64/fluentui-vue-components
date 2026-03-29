@@ -1,7 +1,7 @@
 import { inject } from "vue";
 import type { VNode } from "vue";
 import { ToasterContextKey } from "./context";
-import type { ToastOptions } from "./Toaster.vue";
+import type { ToastOptions } from "./context";
 
 export function useToastController() {
   const context = inject(ToasterContextKey);

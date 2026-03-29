@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots } from "vue";
+import { computed } from "vue";
 import {
   useStyles,
   useResetStyles,
@@ -33,8 +33,6 @@ const props = withDefaults(defineProps<FieldProps>(), {
 });
 
 defineOptions({ inheritAttrs: false });
-
-const vueSlots = useSlots();
 
 const baseId = useId("field-");
 const controlId = `${baseId}__control`;

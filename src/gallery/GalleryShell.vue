@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { navCategories } from "./router";
 import {
   Home20Regular,
@@ -9,7 +9,6 @@ import {
 } from "@ntkrnl64/fluentui-vue-icons";
 
 const route = useRoute();
-const router = useRouter();
 
 const searchQuery = ref("");
 const navOpen = ref(true);

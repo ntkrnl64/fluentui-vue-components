@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { provide, computed } from "vue";
 import {
-  useStyles,
   useResetStyles,
   mergeClasses,
-  makeStyles,
   makeResetStyles,
   shorthands,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
 import { useId } from "../../composables/useId";
 import { ComboboxContextKey } from "./context";
-import type { Ref } from "vue";
 import { ref } from "vue";
 
 export interface ListboxProps {

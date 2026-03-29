@@ -62,7 +62,7 @@ const cssRule = computed(() =>
 
 // Body-level rule for full-page theming + Teleported content
 const bodyRule = computed(() => {
-  const t = mergedTheme.value as Record<string, string>;
+  const t = mergedTheme.value as unknown as Record<string, string>;
   return `body { background-color: var(--colorNeutralBackground1, ${t.colorNeutralBackground1}); color: var(--colorNeutralForeground1, ${t.colorNeutralForeground1}); font-family: var(--fontFamilyBase, ${t.fontFamilyBase}); margin: 0; }`;
 });
 

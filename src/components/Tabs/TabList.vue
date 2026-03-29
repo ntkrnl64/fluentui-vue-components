@@ -6,7 +6,6 @@ import {
   mergeClasses,
   makeStyles,
   makeResetStyles,
-  shorthands,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
 import { TabListContextKey } from "./context";

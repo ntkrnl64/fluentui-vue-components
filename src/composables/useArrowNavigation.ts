@@ -1,7 +1,8 @@
-import { inject, computed, onMounted, onUnmounted } from "vue";
+import { inject, computed } from "vue";
 import type { Ref } from "vue";
 import { TabsterKey } from "../contexts";
-import { getMover, Types as TabsterTypes } from "tabster";
+import { MoverDirections } from "tabster";
+import type { Types as TabsterTypes } from "tabster";
 
 export interface ArrowNavigationOptions {
   axis?: "horizontal" | "vertical" | "both";
@@ -14,7 +15,7 @@ export interface ArrowNavigationOptions {
  * Uses tabster's Mover functionality.
  */
 export function useArrowNavigation(
-  elementRef: Ref<HTMLElement | null | undefined>,
+  _elementRef: Ref<HTMLElement | null | undefined>,
   options: ArrowNavigationOptions = {},
 ) {
   const tabster = inject(TabsterKey, undefined);
@@ -26,13 +27,13 @@ export function useArrowNavigation(
     let direction: TabsterTypes.MoverDirection;
     switch (axis) {
       case "horizontal":
-        direction = TabsterTypes.MoverDirections.Horizontal;
+        direction = MoverDirections.Horizontal;
         break;
       case "vertical":
-        direction = TabsterTypes.MoverDirections.Vertical;
+        direction = MoverDirections.Vertical;
         break;
       case "both":
-        direction = TabsterTypes.MoverDirections.Both;
+        direction = MoverDirections.Both;
         break;
     }
 

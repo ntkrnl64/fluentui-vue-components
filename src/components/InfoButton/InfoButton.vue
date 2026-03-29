@@ -24,7 +24,6 @@ const props = withDefaults(defineProps<InfoButtonProps>(), {
 defineOptions({ inheritAttrs: false });
 
 const isOpen = ref(false);
-const buttonRef = ref<HTMLElement | null>(null);
 
 const useBaseClass = makeResetStyles({
   display: "inline-flex",

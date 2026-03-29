@@ -5,7 +5,6 @@ import {
   useResetStyles,
   mergeClasses,
   makeStyles,
-  makeResetStyles,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
 import { useButtonStyles, useButtonBaseClassName } from "./Button.styles";

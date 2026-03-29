@@ -1,4 +1,4 @@
-import { ref, computed, watch, onUnmounted } from "vue";
+import { ref, computed } from "vue";
 import type { Ref, CSSProperties } from "vue";
 import {
   useFloating,

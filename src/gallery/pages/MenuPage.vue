@@ -16,7 +16,7 @@ import {
 import ControlExample from "../ControlExample.vue";
 
 const checkedItems = ref<Record<string, string[]>>({ edit: [] });
-const radioSelection = ref<Record<string, string>>({ font: "arial" });
+const radioSelection = ref<Record<string, string[]>>({ font: ["arial"] });
 </script>
 
 <template>
@@ -100,7 +100,7 @@ const radioSelection = ref<Record<string, string>>({ font: "arial" });
         </MenuPopover>
       </Menu>
       <template #output>
-        <span>Font: {{ radioSelection.font }}</span>
+        <span>Font: {{ radioSelection.font?.[0] }}</span>
       </template>
     </ControlExample>
 

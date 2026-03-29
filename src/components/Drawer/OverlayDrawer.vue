@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { computed, ref, onUnmounted, watch, nextTick } from "vue";
 import {
   useStyles,
   useResetStyles,
   mergeClasses,
   makeStyles,
   makeResetStyles,
-  shorthands,
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
 
