@@ -253,6 +253,7 @@ function onInput(event: Event) {
       :step="step"
       :value="modelValue"
       :disabled="disabled"
+      :aria-orientation="vertical ? 'vertical' : 'horizontal'"
       @input="onInput"
     />
   </div>
