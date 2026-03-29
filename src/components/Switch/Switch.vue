@@ -13,11 +13,13 @@ import { tokens } from "@fluentui/react-theme";
 export interface SwitchProps {
   disabled?: boolean;
   labelPosition?: "before" | "after" | "above";
+  size?: "small" | "medium";
 }
 
 const props = withDefaults(defineProps<SwitchProps>(), {
   disabled: false,
   labelPosition: "after",
+  size: "medium",
 });
 
 defineOptions({ inheritAttrs: false });
@@ -78,7 +80,7 @@ const useSwitchStyles = makeStyles({
     },
   },
   thumbChecked: {
-    transform: "translateX(20px)",
+    transform: "translateX(22px)",
     backgroundColor: tokens.colorNeutralForegroundInverted,
   },
   indicatorUnchecked: {
@@ -86,10 +88,19 @@ const useSwitchStyles = makeStyles({
       ...shorthands.borderColor(tokens.colorNeutralStrokeAccessibleHover),
     },
   },
+  smallIndicator: {
+    fontSize: "14px",
+    height: "16px",
+    width: "32px",
+  },
+  smallThumb: {
+    width: "10px",
+    height: "10px",
+  },
   before: { flexDirection: "row-reverse" },
   above: { flexDirection: "column-reverse", alignItems: "flex-start" },
   disabled: {
-    cursor: "not-allowed",
+    cursor: "default",
     color: tokens.colorNeutralForegroundDisabled,
   },
   disabledIndicator: {
@@ -131,6 +142,7 @@ const rootClass = computed(() =>
 const indicatorClass = computed(() =>
   mergeClasses(
     styles.value.indicator,
+    props.size === "small" && styles.value.smallIndicator,
     checked.value
       ? styles.value.indicatorChecked
       : styles.value.indicatorUnchecked,
@@ -141,6 +153,7 @@ const indicatorClass = computed(() =>
 const thumbClass = computed(() =>
   mergeClasses(
     styles.value.thumb,
+    props.size === "small" && styles.value.smallThumb,
     checked.value && styles.value.thumbChecked,
     props.disabled && styles.value.disabledThumb,
   ),
