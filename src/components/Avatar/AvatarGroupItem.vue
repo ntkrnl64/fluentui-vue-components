@@ -9,7 +9,16 @@ import {
 } from "@ntkrnl64/griffel-vue";
 import { tokens } from "@fluentui/react-theme";
 import { AvatarGroupContextKey } from "./context";
+import type { AvatarColor } from "./Avatar.vue";
+import Avatar from "./Avatar.vue";
 
+export interface AvatarGroupItemProps {
+  name?: string;
+  image?: string;
+  color?: AvatarColor;
+}
+
+const props = defineProps<AvatarGroupItemProps>();
 defineOptions({ inheritAttrs: false });
 
 const ctx = inject(AvatarGroupContextKey);
@@ -41,10 +50,14 @@ const rootClass = computed(() =>
     ctx?.layout === "stack" && styles.value.stack,
   ),
 );
+
+const avatarSize = computed(() => ctx?.size ?? 32);
 </script>
 
 <template>
   <div :class="rootClass" v-bind="$attrs">
-    <slot />
+    <slot>
+      <Avatar :name="name" :image="image" :size="avatarSize" :color="color" />
+    </slot>
   </div>
 </template>
