@@ -67,6 +67,14 @@ function setActiveDescendant(id: string) {
   activeDescendant.value = id;
 }
 
+const optionTextMap = new Map<string, string>();
+function registerOption(value: string, text: string) {
+  optionTextMap.set(value, text);
+}
+function getOptionText(value: string): string {
+  return optionTextMap.get(value) ?? value;
+}
+
 const useBaseClass = makeResetStyles({
   display: "flex",
   flexDirection: "column",
@@ -91,6 +99,8 @@ provide(ComboboxContextKey, {
   activeDescendant,
   setActiveDescendant,
   listboxId,
+  registerOption,
+  getOptionText,
 });
 </script>
 

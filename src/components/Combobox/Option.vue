@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { computed, inject, onMounted, ref, watch, nextTick } from "vue";
 import { Checkmark16Filled } from "@ntkrnl64/fluentui-vue-icons";
 import {
   useStyles,
@@ -19,17 +19,56 @@ export interface OptionProps {
   text?: string;
 }
 
-const props = withDefaults(defineProps<OptionProps>(), {
-  disabled: false,
-});
-
+const props = withDefaults(defineProps<OptionProps>(), { disabled: false });
 defineOptions({ inheritAttrs: false });
 
 const comboboxCtx = inject(ComboboxContextKey)!;
 const optionId = useId("fui-option-");
+const optionRef = ref<HTMLElement | null>(null);
+
+const displayText = computed(() => props.text ?? props.value);
+
+// Extract text from DOM slot content when text prop is not provided
+// (matches React's useOption which extracts text from children)
+function getRegistrationText(): string {
+  if (props.text) return props.text;
+  if (optionRef.value) {
+    const el = optionRef.value;
+    // Get text content excluding the check icon (first child span with aria-hidden)
+    let text = "";
+    for (const child of el.childNodes) {
+      if (
+        child instanceof HTMLElement &&
+        child.getAttribute("aria-hidden") === "true"
+      )
+        continue;
+      text += child.textContent ?? "";
+    }
+    const trimmed = text.trim();
+    if (trimmed) return trimmed;
+  }
+  return props.value;
+}
+
+// Register this option's value->text mapping with the parent
+onMounted(() => {
+  nextTick(() => {
+    comboboxCtx.registerOption(props.value, getRegistrationText());
+  });
+});
+watch(
+  () => [props.value, props.text],
+  () => {
+    nextTick(() => {
+      comboboxCtx.registerOption(props.value, getRegistrationText());
+    });
+  },
+);
 
 const isSelected = computed(() => comboboxCtx.isSelected(props.value));
-const displayText = computed(() => props.text ?? props.value);
+const isActive = computed(
+  () => comboboxCtx.activeDescendant.value === optionId,
+);
 
 const useBaseClass = makeResetStyles({
   display: "flex",
@@ -59,6 +98,11 @@ const useBaseClass = makeResetStyles({
 const useOptionStyles = makeStyles({
   selected: {
     backgroundColor: tokens.colorNeutralBackground1Selected,
+  },
+  // Keyboard-focused (activeDescendant) highlight
+  active: {
+    backgroundColor: tokens.colorNeutralBackground1Hover,
+    color: tokens.colorNeutralForeground1Hover,
   },
   disabled: {
     color: tokens.colorNeutralForegroundDisabled,
@@ -90,6 +134,7 @@ const rootClass = computed(() =>
   mergeClasses(
     "fui-Option",
     baseClassName.value,
+    isActive.value && !props.disabled && styles.value.active,
     isSelected.value && styles.value.selected,
     props.disabled && styles.value.disabled,
   ),
@@ -111,11 +156,13 @@ function handleClick() {
 
 <template>
   <div
+    ref="optionRef"
     :id="optionId"
     :class="rootClass"
     role="option"
     :aria-selected="isSelected"
     :aria-disabled="disabled || undefined"
+    :data-value="value"
     v-bind="$attrs"
     @click="handleClick"
   >
