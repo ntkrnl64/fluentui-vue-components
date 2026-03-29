@@ -120,6 +120,8 @@ const useBaseClass = makeResetStyles({
   ...shorthands.borderRadius(tokens.borderRadiusMedium),
   border: `${tokens.strokeWidthThin} solid ${tokens.colorTransparentStroke}`,
   ...shorthands.padding("4px", "11px", "6px", "11px"),
+  cursor: "default",
+  overflowWrap: "break-word",
   fontFamily: tokens.fontFamilyBase,
   fontSize: tokens.fontSizeBase200,
   lineHeight: tokens.lineHeightBase200,
